@@ -1,0 +1,9 @@
+packing-checklist-backup-*.json
+holiday-checklist-backup-*.json
+.DS_Store
+.claude/
+
+# This repo's global ~/.gitignore_global excludes *.html/*.png (meant for
+# build artifacts in other projects) — but here they're the actual source.
+!*.html
+!icons/*.png

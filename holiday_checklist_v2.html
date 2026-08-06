@@ -1,0 +1,2578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packing Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf6f1;
+  --bg-grad-1:#d4a574;
+  --bg-grad-2:#d98a51;
+  --card:#fffbf7;
+  --card-border:#e8d4c0;
+  --text-primary:#3d2414;
+  --text-secondary:#8b7355;
+  --text-tertiary:#a8957f;
+  /* --accent/--accent-2 match [data-theme="dark"]'s blue — they're only ever
+     used as solid-fill button/header backgrounds with white text on top, so
+     they read fine regardless of page background.
+     Everything else below is light-mode's OWN (not dark mode's) — --taking/
+     --ignore/--important/--new-* and --accent-soft each do double duty as
+     both a self-contained badge pair (fg+its own -soft bg together, where
+     dark mode's light-on-dark works fine) AND as bare text/hover-background
+     sitting directly on the page's own surfaces (.item:hover, .settings-row,
+     .edit-tip, [contenteditable]:focus, the "Tap to cycle" legend, etc.) —
+     that second role only works if these stay tuned to THIS theme's own
+     (light) surfaces, which is exactly what broke when they were set to
+     dark mode's light-on-dark-friendly values: hovering an item, focusing a
+     rename field, or opening the settings menu turned near-unreadable
+     (dark text on a background that had become dark navy underneath it). */
+  --accent:#1f83d4;
+  --accent-2:#41a6e6;
+  --accent-soft:#ffedad;
+  --taking:#2d5016;
+  --taking-soft:#dffce4;
+  --ignore:#a54e23;
+  --ignore-soft:#ffc93c;
+  --important:#a32626;
+  --important-soft:#fce4e4;
+  --new-bg:#ffc107;
+  --new-text:#8b5a2b;
+  --shadow:0 1px 2px rgba(61,36,20,.06), 0 8px 24px -8px rgba(31,131,212,.12);
+  --shadow-sm:0 1px 2px rgba(61,36,20,.07);
+  --hero-shadow:0 16px 40px -14px rgba(31,131,212,.4);
+  --active-shadow:0 6px 16px -6px rgba(31,131,212,.5);
+  --radius:14px;
+  --radius-sm:8px;
+}
+[data-theme="dark"]{
+  --bg:#0e1b28;
+  --bg-grad-1:#122234;
+  --bg-grad-2:#0d2130;
+  --card:#152738;
+  --card-border:#223a4f;
+  --text-primary:#e7f1fa;
+  --text-secondary:#8fabc2;
+  --text-tertiary:#6c8aa2;
+  --accent:#1f83d4;
+  --accent-2:#41a6e6;
+  --accent-soft:#1c3550;
+  --taking:#4ade80;
+  --taking-soft:#14532d;
+  --ignore:#cf8a59;
+  --ignore-soft:#431407;
+  --important:#fb7185;
+  --important-soft:#4c0519;
+  --new-bg:#1c3a54;
+  --new-text:#8fcaf0;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -10px rgba(0,0,0,.55);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --hero-shadow:0 16px 40px -14px rgba(31,131,212,.55);
+  --active-shadow:0 6px 16px -6px rgba(31,131,212,.7);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);min-height:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text-primary);padding:32px 16px 64px;transition:background .25s}
+
+.page{max-width:920px;margin:0 auto}
+
+.hero{
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius:20px;padding:16px 20px;color:#fff;position:relative;overflow:visible;
+  box-shadow:var(--hero-shadow);
+  margin-bottom:18px;
+}
+.hero::after{content:'';position:absolute;right:-40px;top:-60px;width:200px;height:200px;background:rgba(255,255,255,.14);border-radius:50%;pointer-events:none}
+.hero::before{content:'';position:absolute;right:60px;bottom:-70px;width:140px;height:140px;background:rgba(255,255,255,.10);border-radius:50%;pointer-events:none}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative;z-index:1;flex-wrap:wrap}
+.hero-title{font-size:22px;font-weight:800;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
+.hero-sub-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px}
+.hero-sub{font-size:14px;opacity:.88;font-weight:500}
+.hero-based-on{font-size:14px;opacity:.5;font-weight:600;display:flex;align-items:center;gap:6px}
+.hero-based-on b{font-weight:800}
+.hero-based-on.missing{font-style:italic}
+.settings-dropdown{position:relative;flex-shrink:0}
+.settings-toggle{
+  background:var(--card);border:1px solid var(--card-border);color:var(--text-secondary);
+  border-radius:999px;width:36px;height:36px;font-size:27px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;line-height:1;box-shadow:var(--shadow-sm);
+}
+.settings-toggle:hover{border-color:var(--accent);color:var(--accent)}
+.settings-menu{
+  position:absolute;top:100%;right:0;margin-top:8px;background:var(--card);border:1px solid var(--card-border);
+  border-radius:8px;min-width:200px;box-shadow:var(--shadow);display:none;flex-direction:column;z-index:100;
+}
+.settings-menu.show{display:flex}
+.settings-item{
+  background:none;border:none;color:var(--text-primary);padding:4px 16px;text-align:left;cursor:pointer;
+  font-size:14px;transition:background .12s;display:flex;align-items:center;gap:8px;font-weight:500;
+}
+.settings-icon{font-size:21px;display:flex;align-items:center;justify-content:center}
+.settings-item:hover{background:rgba(0,0,0,.04)}
+.settings-divider{height:1px;background:var(--card-border);margin:4px 0}
+.theme-toggle:hover{background:rgba(255,255,255,.28)}
+
+.stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+.stat-chip{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:#fff;backdrop-filter:blur(2px)}
+.stat-chip b{font-size:14px;margin-right:4px}
+/* Each pill is colored to match that state's item styling elsewhere (checkbox/strike-through colors) */
+.stat-chip.chip-left{background:rgba(255,255,255,.92);border-color:rgba(255,255,255,.92);color:#1b2b3d}
+.stat-chip.chip-left b{color:#1b2b3d}
+.stat-chip.chip-taking{background:var(--taking-soft);border-color:var(--taking-soft);color:var(--taking)}
+.stat-chip.chip-taking b{color:var(--taking)}
+.stat-chip.chip-ignore{background:var(--ignore-soft);border-color:var(--ignore-soft);color:var(--ignore)}
+.stat-chip.chip-ignore b{color:var(--ignore)}
+.stat-chip{cursor:pointer;transition:opacity .15s;border:1px solid transparent}
+.stat-chip.hidden-state{opacity:.5}
+.stat-chip .hidden-suffix{font-weight:600;opacity:.85}
+.stat-row-showall{background:none;border:none;color:#fff;opacity:.85;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;padding:6px 2px}
+.stat-row-showall:hover{opacity:1}
+
+.progress-track{width:100%;height:8px;background:rgba(255,255,255,.25);border-radius:999px;margin-top:14px;overflow:hidden;display:flex;position:relative;z-index:1}
+.prog-taking{height:100%;background:var(--taking);transition:width .35s ease}
+.prog-ignore{height:100%;background:var(--ignore);transition:width .35s ease}
+
+/* Trip bar (reuses the "profile-tab" pill styling) */
+.profile-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.profile-tab{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--text-secondary);background:var(--card);border:1px solid var(--card-border);cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
+.profile-tab:hover{border-color:var(--accent);color:var(--accent)}
+.profile-tab.active{background:var(--accent);color:#fff;border-color:transparent}
+.profile-tab .kebab{opacity:.8;padding:0 4px;border-radius:5px;font-weight:800;line-height:1.4}
+.profile-tab.active .kebab:hover{background:rgba(255,255,255,.28)}
+.profile-tab:not(.active) .kebab:hover{background:var(--accent-soft);color:var(--accent)}
+.profile-add{border-style:dashed;color:var(--text-tertiary)}
+.profile-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.profile-add-btn{padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s;margin-left:auto}
+.profile-add-btn:hover{background:var(--accent-2);box-shadow:var(--shadow)}
+
+.manage-types-row2{margin:2px 0 16px;display:flex;justify-content:flex-end}
+.manage-types-link{
+  background:var(--card);border:1px solid var(--card-border);color:var(--text-primary);
+  font-size:12.5px;font-weight:700;cursor:pointer;padding:7px 14px;border-radius:999px;
+  box-shadow:var(--shadow-sm);
+}
+.manage-types-link:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:16px}
+.legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--card-border);padding:8px 14px;border-radius:12px;flex:1}
+.legend-prefix{font-size:12px;color:var(--text-tertiary);font-weight:500;margin-right:2px}
+.legend-arrow{font-size:12px;color:var(--text-tertiary);font-weight:700}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);font-weight:500}
+.leg-box{width:20px;height:20px;border-radius:5px;border:1.5px solid;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.leg-none{border-color:var(--card-border);background:var(--card)}
+.leg-taking{border-color:var(--taking);background:var(--taking-soft);color:var(--taking)}
+.leg-ignore{border-color:var(--ignore);background:var(--ignore-soft);color:var(--ignore)}
+
+.controls{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.btn{
+  background:var(--card);border:1px solid var(--card-border);border-radius:999px;
+  padding:7px 14px;font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;
+  transition:all .15s;box-shadow:var(--shadow-sm);
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--active-shadow)}
+.btn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--card-border);color:var(--text-tertiary)}
+.btn:disabled:hover{border-color:var(--card-border);color:var(--text-tertiary)}
+.btn-reset{color:var(--ignore);border-color:var(--ignore-soft);margin-left:auto}
+.btn-reset:hover{background:var(--ignore-soft);border-color:var(--ignore)}
+
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){
+  .cols{grid-template-columns:1fr}
+  .btn-reset{margin-left:0}
+}
+
+.section{
+  background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+  padding-bottom:6px;margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;
+}
+.sec-head{
+  font-size:14px;font-weight:700;letter-spacing:.06em;color:#fff;
+  background:linear-gradient(120deg, var(--accent), var(--accent-2));padding:4px 12px;
+  display:flex;align-items:center;gap:8px;
+}
+.sec-head .hd-label{text-transform:uppercase}
+.hd-icon{font-size:20px;flex-shrink:0}
+.hd-gripper{cursor:grab;font-size:12px;opacity:.5;margin-right:4px;flex-shrink:0;user-select:none}
+.hd-gripper:active{cursor:grabbing}
+.sec-head.drag-over{background:rgba(0,0,0,.22);border-radius:4px}
+.sub-head{
+  font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
+  background:var(--accent-soft);border-radius:8px;
+  margin:10px 10px 4px;padding:7px 10px;display:flex;align-items:center;gap:8px;
+}
+/* Wraps the (contentEditable) title + a static, never-editable item-count
+   badge — the wrapper carries the flex:1 that used to live on .hd-label
+   directly, so the count sits right after the title text instead of being
+   pushed to the far right like the dot-stats summary is. */
+.hd-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.hd-count{font-size:11px;font-weight:700;opacity:.85;flex-shrink:0}
+.hd-actions{display:none;align-items:center;gap:6px;flex-shrink:0}
+.hd-btn{
+  width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;border-radius:7px;cursor:pointer;
+  background:transparent;color:#fff;
+}
+.hd-btn:hover{background:rgba(255,255,255,.24);transform:scale(1.06)}
+.sub-head .hd-btn{background:transparent;color:var(--accent)}
+.sub-head .hd-btn:hover{background:rgba(91,155,216,.16)}
+.sub-head .hd-btn.del{color:var(--ignore)}
+.sub-head .hd-btn.del:hover{background:var(--ignore-soft)}
+
+.hd-stats{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;flex-shrink:0}
+.hd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.hd-chevron{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;border-radius:6px}
+.sec-head{cursor:pointer}
+.sec-head .hd-chevron:hover,.sec-head:hover{background:linear-gradient(120deg, #145a94, var(--accent))}
+body.edit-mode .sec-head{cursor:default}
+body.edit-mode .sec-head:hover{background:linear-gradient(120deg, var(--accent), var(--accent-2))}
+/* The pinned Important section has no rename/move/delete affordances to
+   protect, so it stays clickable/collapsible even while editing elsewhere. */
+body.edit-mode .important-section .sec-head{cursor:pointer}
+body.edit-mode .important-section .sec-head:hover{background:var(--important)}
+.sec-body.collapsed{display:none}
+
+.item{
+  display:flex;align-items:center;gap:10px;padding:7px 16px;border-radius:0;
+  cursor:pointer;transition:background .12s;user-select:none;margin:0 6px;
+}
+.item:hover{background:var(--accent-soft)}
+.item.taking{opacity:.6}
+.item.taking .item-label{color:var(--taking)}
+.item.ignore{opacity:.55}
+.item.ignore .item-label{text-decoration:line-through;color:var(--ignore)}
+.item.important{box-shadow:inset 3px 0 0 var(--important);background:var(--important-soft)}
+.item.important .item-label{font-weight:700}
+
+.checkbox{
+  width:20px;height:20px;border:1.5px solid var(--card-border);border-radius:7px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--card);
+  font-size:11px;font-weight:800;color:var(--text-tertiary);
+}
+.item.taking .checkbox{background:var(--taking);border-color:var(--taking);color:#fff}
+.item.ignore .checkbox{background:var(--ignore);border-color:var(--ignore);color:#fff}
+
+.flag-box{
+  width:20px;height:20px;border:1.5px solid var(--card-border);border-radius:7px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--card);
+  font-size:13px;font-weight:800;color:var(--text-tertiary);cursor:pointer;
+}
+.flag-box:hover{border-color:var(--important);color:var(--important)}
+.flag-box.active{background:var(--important);border-color:var(--important);color:#fff}
+
+.item-label-wrap{display:flex;align-items:center;flex-wrap:wrap;gap:6px;flex:1;min-width:0}
+.item-label{font-size:13.5px;color:var(--text-primary);font-weight:500}
+.new-badge{font-size:10px;font-weight:700;color:var(--new-text);background:var(--new-bg);border-radius:999px;padding:2px 8px;flex-shrink:0;transition:background .15s,color .15s}
+.new-badge.added{background:var(--taking-soft);color:var(--taking)}
+.filter-hide{display:none}
+.empty-filter-msg{display:none;font-size:12px;color:var(--text-tertiary);font-style:italic;padding:8px 16px 10px 22px}
+.empty-filter-msg.show{display:block}
+
+/* Edit mode */
+.edit-only{display:none}
+body.edit-mode .edit-only{display:inline-flex}
+body.edit-mode .add-row.edit-only{display:block}
+body.edit-mode .add-section-btn.edit-only{display:block}
+body.edit-mode .hd-actions.edit-only{display:flex}
+
+.item-actions{display:none;align-items:center;gap:2px;flex-shrink:0}
+body.edit-mode .item-actions.edit-only{display:flex}
+.item-btn{width:19px;height:19px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-tertiary);cursor:pointer;flex-shrink:0}
+.item-btn:hover{background:var(--accent-soft);color:var(--accent)}
+.item-btn.del{color:var(--ignore)}
+.item-btn.del:hover{background:var(--ignore-soft)}
+
+.add-row{font-size:12.5px;color:var(--accent);cursor:pointer;padding:6px 16px 10px 22px;font-weight:600}
+.add-row:hover{text-decoration:underline}
+.add-section-btn{margin:0 6px 14px;padding:9px 12px;border:1.5px dashed var(--card-border);border-radius:10px;text-align:center;font-size:12.5px;color:var(--text-secondary);cursor:pointer}
+.add-section-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+[contenteditable="true"]{outline:none;border-radius:4px;cursor:text}
+[contenteditable="true"]:focus{background:var(--accent-soft)}
+[contenteditable="true"]:empty:before{content:attr(data-placeholder);color:rgba(255,255,255,.7);font-style:italic}
+.item-label[contenteditable="true"]:empty:before,.sub-head [contenteditable="true"]:empty:before{color:var(--text-tertiary)}
+.sec-head .hd-label[contenteditable="true"]:focus{background:rgba(255,255,255,.28)}
+
+/* Edit-mode affordance: make it obvious titles/items are click-to-rename */
+body.edit-mode .hd-label,body.edit-mode .item-label{cursor:text;border-bottom:1px dashed rgba(100,130,155,.35);padding-bottom:1px}
+body.edit-mode .sec-head .hd-label{border-bottom-color:rgba(255,255,255,.5)}
+body.edit-mode .item-label:hover,body.edit-mode .sub-head .hd-label:hover{background:var(--accent-soft)}
+body.edit-mode .sec-head .hd-label:hover{background:rgba(255,255,255,.18)}
+.edit-tip{display:none;font-size:12px;color:var(--text-secondary);background:var(--accent-soft);border:1px solid var(--card-border);border-radius:10px;padding:8px 12px;margin-bottom:14px}
+body.edit-mode .edit-tip{display:block}
+
+/* Trip vs Trip-Template view switching */
+.type-only{display:none}
+body.mode-type .trip-only{display:none}
+body.mode-type .type-only{display:block}
+.type-banner{background:var(--accent-soft);border:1px solid var(--card-border);border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.type-banner span{font-size:13px;color:var(--text-secondary);font-weight:500}
+
+/* Pinned "Important" section — same section/section-body/sec-head structure as a
+   normal section (so it collapses the same way), just styled with the important colour
+   instead of the accent gradient, and its items get a location caption underneath. */
+.important-section .sec-head{background:var(--important);background-image:none}
+.important-item-caption{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+
+.search-row{margin-bottom:14px}
+.search-input-wrap{position:relative;flex:1;min-width:200px}
+.search-input{width:100%;padding:9px 34px 9px 34px;border-radius:999px;border:1px solid var(--card-border);background:var(--card);color:var(--text-primary);font-size:13px;font-family:inherit}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text-tertiary);pointer-events:none}
+.search-clear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:50%;border:none;background:none;color:var(--text-tertiary);cursor:pointer;font-size:13px;display:none;align-items:center;justify-content:center}
+.search-clear.show{display:flex}
+.search-clear:hover{background:var(--accent-soft);color:var(--accent)}
+
+/* Manage Trip Templates / Version history lists (used inside modals) */
+.type-list,.version-list{display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;margin-bottom:10px}
+.type-row,.version-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--bg)}
+.type-row-name{font-size:13px;font-weight:600;color:var(--text-primary);display:flex;flex-direction:column;gap:2px}
+.type-row-count,.version-row-info span{font-size:11px;font-weight:500;color:var(--text-tertiary)}
+.type-row-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.type-row-actions .modal-btn{width:32px;height:32px;padding:0;display:flex;align-items:center;justify-content:center;font-size:15px}
+.version-row-info{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--text-primary)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,20,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;backdrop-filter:blur(2px)}
+.modal-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:22px;width:100%;max-width:380px;box-shadow:var(--shadow)}
+.modal-card h3{font-size:15px;font-weight:700;margin-bottom:14px;color:var(--text-primary)}
+.modal-card input[type=text],.modal-card input[type=month],.modal-card select{width:100%;padding:9px 11px;border-radius:9px;border:1px solid var(--card-border);background:var(--bg);color:var(--text-primary);font-size:13px;margin-bottom:10px;font-family:inherit;color-scheme:light}
+.modal-card input[type=text]:focus,.modal-card input[type=month]:focus,.modal-card select:focus{outline:none;border-color:var(--accent)}
+.modal-card input[type=month]::-webkit-calendar-picker-indicator{cursor:pointer;border-radius:5px;padding:2px}
+[data-theme="dark"] .modal-card input[type=text],[data-theme="dark"] .modal-card input[type=month],[data-theme="dark"] .modal-card select{color-scheme:dark}
+.modal-card label.field-label{font-size:12.5px;color:var(--text-secondary);display:block;margin-bottom:6px}
+.modal-msg{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5}
+.modal-check-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-secondary);margin-bottom:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;flex-wrap:wrap}
+.modal-btn{padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--card-border);background:var(--bg);color:var(--text-secondary)}
+.modal-btn:hover{border-color:var(--accent);color:var(--accent)}
+.modal-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.modal-btn.primary:hover{opacity:.9;color:#fff}
+.modal-btn.danger{background:transparent;color:var(--ignore);border-color:var(--ignore-soft)}
+.modal-btn.danger:hover{background:var(--ignore-soft);border-color:var(--ignore)}
+
+/* Tidied-up settings rows (Trip settings / a future App settings) — an icon-fronted,
+   full-width tappable row instead of a small plain-text link. */
+.settings-note{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--accent);font-weight:600;margin-bottom:14px}
+.settings-note .si{font-size:20px}
+.settings-row{display:flex;align-items:center;gap:12px;width:100%;padding:10px 4px;border:none;background:none;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);text-align:left;border-radius:8px}
+.settings-row:hover{background:var(--accent-soft)}
+.settings-row.danger{color:var(--ignore)}
+.settings-row.danger:hover{background:var(--ignore-soft)}
+.settings-row .si{font-size:20px;width:24px;text-align:center;flex-shrink:0}
+.settings-divider{height:1px;background:var(--card-border);margin:10px 0}
+.version-back{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent);cursor:pointer;font-weight:600;margin-bottom:12px}
+.version-back:hover{text-decoration:underline}
+</style>
+</head>
+<body data-theme="light">
+<div class="page">
+
+  <div class="trip-only">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;width:100%">
+      <div class="profile-bar" id="profile-bar"></div>
+      <div class="settings-dropdown" style="margin-left:auto">
+        <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="App settings">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8,10.45 L20.69,9.67 L20.69,14.33 L17.8,13.55 L17.2,15 L19.79,16.5 L16.5,19.79 L15,17.2 L13.55,17.8 L14.33,20.69 L9.67,20.69 L10.45,17.8 L9,17.2 L7.5,19.79 L4.21,16.5 L6.8,15 L6.2,13.55 L3.31,14.33 L3.31,9.67 L6.2,10.45 L6.8,9 L4.21,7.5 L7.5,4.21 L9,6.8 L10.45,6.2 L9.67,3.31 L14.33,3.31 L13.55,6.2 L15,6.8 L16.5,4.21 L19.79,7.5 L17.2,9 Z M9.5,9.5 H14.5 V14.5 H9.5 Z"/>
+          </svg>
+        </button>
+        <div class="settings-menu" id="settings-menu">
+          <button class="settings-item" onclick="toggleTheme(); toggleSettingsDropdown()">
+            <span class="settings-icon">🌙</span><span id="theme-label">Dark mode</span>
+          </button>
+          <button class="settings-item" onclick="exportBackup(); toggleSettingsDropdown()">
+            <span class="settings-icon">⬇️</span><span>Backup</span>
+          </button>
+          <button class="settings-item" onclick="triggerRestore(); toggleSettingsDropdown()">
+            <span class="settings-icon">⬆️</span><span>Restore</span>
+          </button>
+          <div class="settings-divider"></div>
+          <button class="settings-item" onclick="openManageTemplatesModal(); toggleSettingsDropdown()">
+            <span class="settings-icon">📋</span><span>Manage Trip Templates</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="hero-title" id="hero-title">✈️ Packing Checklist</div>
+        <div class="hero-sub-row">
+          <span class="hero-sub" id="hero-subtitle"></span>
+          <span class="hero-based-on" id="hero-based-on"></span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="edit-toggle-btn" onclick="toggleEditMode()">✏️ Edit items</button>
+        <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺ Undo</button>
+      </div>
+    </div>
+    <div class="trip-only">
+      <div class="stat-row">
+        <div class="stat-chip chip-taking" data-state="taking" onclick="toggleStateFilter('taking')" title="Click to hide/show Done items"><b id="s-taking">0</b>Done</div>
+        <div class="stat-chip chip-ignore" data-state="ignore" onclick="toggleStateFilter('ignore')" title="Click to hide/show Ignoring items"><b id="s-ignore">0</b>Ignoring</div>
+        <div class="stat-chip chip-left" data-state="none" onclick="toggleStateFilter('none')" title="Click to hide/show Still-to-do items"><b id="s-left">0</b>Still to do</div>
+        <button class="stat-row-showall" id="stat-showall" style="display:none" onclick="showAllFilters()">Show all</button>
+      </div>
+      <div class="progress-track">
+        <div class="prog-taking" id="prog-taking" style="width:0%"></div>
+        <div class="prog-ignore" id="prog-ignore" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="trip-only">
+    <div class="toolbar">
+      <div class="legend">
+        <span class="legend-prefix">Tap to cycle:</span>
+        <div class="leg"><div class="leg-box leg-none">?</div> Still to do</div>
+        <span class="legend-arrow">→</span>
+        <div class="leg"><div class="leg-box leg-taking">✓</div> Done</div>
+        <span class="legend-arrow">→</span>
+        <div class="leg"><div class="leg-box leg-ignore">✗</div> Ignoring</div>
+      </div>
+      <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
+    </div>
+
+    <div class="edit-tip">✏️ Section and sub-section titles show small ✎ (rename), + (add sub-section) and ✕ (delete) buttons on the right — click ✎ to rename. For items, click the item's text directly to rename it, or use its ✕ to delete.</div>
+
+    <div class="controls" style="display:flex;gap:8px;align-items:flex-start">
+      <button class="btn active" data-filter="all" onclick="selectAllFilters()">All</button>
+      <button class="btn active" data-filter="taking" onclick="toggleStateFilter('taking')">Done</button>
+      <button class="btn active" data-filter="ignore" onclick="toggleStateFilter('ignore')">Ignoring</button>
+      <button class="btn active" data-filter="none" onclick="toggleStateFilter('none')">Still to do</button>
+      <button class="btn" data-filter="new" onclick="toggleNewFilter()">★ New</button>
+      <button class="btn" data-filter="important" onclick="toggleImportantFilter()">🚩 Important</button>
+      <div class="search-input-wrap" style="flex:1;min-width:200px">
+        <span class="search-icon">🔎</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Search items…" oninput="onSearchInput(this.value)" autocomplete="off">
+        <button class="search-clear" id="search-clear" onclick="clearSearch()" title="Clear search">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="type-only">
+    <div class="type-banner">
+      <span>🧩 Editing a Trip Template — items here have no checked state; changes only affect trips created from it in future.</span>
+      <button class="btn" onclick="exitTemplateEditMode()">✅ Done — back to Trips</button>
+    </div>
+  </div>
+
+  <div id="important-host"></div>
+
+  <div class="cols" id="cols"></div>
+
+  <datalist id="subtitle-suggestions">
+    <option value="Parents Only">
+    <option value="Whole Family">
+    <option value="Just Me">
+  </datalist>
+</div>
+
+<script>
+const RAW_DEFAULT = [
+  {col:0,type:'sec',label:'Clothes'},
+  {col:0,type:'sub',label:'Outerwear'},
+  {col:0,label:'Winter Coat'},
+  {col:0,label:'Rain Jacket'},
+  {col:0,label:'Fleece'},
+  {col:0,type:'sub',label:'Tops'},
+  {col:0,label:'Short Sleeved Tops'},
+  {col:0,label:'Long Sleeved Tops'},
+  {col:0,label:'Smart Outfit (for dinner out)'},
+  {col:0,label:'Jumpers'},
+  {col:0,label:'Swimming Shorts'},
+  {col:0,type:'sub',label:'Bottoms'},
+  {col:0,label:'Trousers'},
+  {col:0,label:'Jeans'},
+  {col:0,label:'Long Shorts'},
+  {col:0,label:'Belt'},
+  {col:0,type:'sub',label:'Footwear'},
+  {col:0,label:'Boots'},
+  {col:0,label:'Shoes'},
+  {col:0,label:'Sandals'},
+  {col:0,label:'Socks'},
+  {col:0,label:'Trainer Socks'},
+  {col:0,label:'Flip Flops'},
+  {col:0,type:'sub',label:'Underwear & Accessories'},
+  {col:0,label:'Pants'},
+  {col:0,label:'Boxers'},
+  {col:0,label:'Thermals'},
+  {col:0,label:'Gloves'},
+  {col:0,label:'Hat'},
+  {col:0,label:'Sunhat / Cap'},
+  {col:0,label:'Pyjamas / Nightwear'},
+  {col:0,type:'sec',label:'Toiletries'},
+  {col:0,type:'sub',label:'Body'},
+  {col:0,label:'Body Wash'},
+  {col:0,label:'Deodorant'},
+  {col:0,label:'Aftershave'},
+  {col:0,label:'Flannel'},
+  {col:0,label:'Suntan Cream'},
+  {col:0,label:'After-Sun Lotion'},
+  {col:0,label:'Moisturiser'},
+  {col:0,label:'Hand Sanitiser'},
+  {col:0,label:'Insect Repellent'},
+  {col:0,type:'sub',label:'Face & Shaving'},
+  {col:0,label:'Electric Razor'},
+  {col:0,label:'Disposable Razor'},
+  {col:0,label:'Shaving Cream'},
+  {col:0,label:'Shaving Balm'},
+  {col:0,label:'Aftershave'},
+  {col:0,type:'sub',label:'Hair'},
+  {col:0,label:'Shampoo'},
+  {col:0,label:'Conditioner'},
+  {col:0,label:'Gel'},
+  {col:0,label:'Comb'},
+  {col:0,type:'sub',label:'Mouth & Lips'},
+  {col:0,label:'Toothbrush'},
+  {col:0,label:'Toothpaste'},
+  {col:0,label:'Lip Block (SPF)'},
+  {col:0,type:'sub',label:'Makeup & Extras'},
+  {col:0,label:'Makeup / Cosmetics'},
+  {col:0,label:'Feminine Hygiene Products'},
+  {col:0,label:'Contact Lenses & Solution'},
+  {col:0,label:'Cotton Buds / Pads'},
+  {col:0,type:'sub',label:'Other'},
+  {col:0,label:'Earplugs'},
+  {col:0,label:'Nail Kit'},
+  {col:0,type:'sec',label:'Medications'},
+  {col:0,label:'Prescription Medication'},
+  {col:0,label:'Vitamins'},
+  {col:0,label:'Paracetamol'},
+  {col:0,label:'Aspirin'},
+  {col:0,label:'Antihistamines'},
+  {col:0,label:'Ibuprofen'},
+  {col:0,label:'Imodium'},
+  {col:0,label:'Plasters'},
+  {col:0,label:'Travel Sickness Tablets'},
+  {col:0,label:'Rehydration Sachets'},
+  {col:0,label:'After-Bite Cream'},
+  {col:0,type:'sec',label:'Beach'},
+  {col:0,label:'Beach Towels'},
+  {col:0,label:'Beach Bag'},
+  {col:0,label:'Beach Mat'},
+  {col:0,label:'Swimwear'},
+  {col:0,label:'Snorkel & Goggles'},
+  {col:0,label:'Waterproof Phone Pouch'},
+  {col:0,type:'sec',label:'Leisure & Entertainment'},
+  {col:0,label:'Games'},
+  {col:0,label:'Puzzles'},
+  {col:0,label:'Playing Cards'},
+  {col:0,label:'Paper & Pen'},
+  {col:0,type:'sec',label:'Food & Drink'},
+  {col:0,type:'sub',label:'Condiments (if self-catering)'},
+  {col:0,label:'Tomato Sauce'},
+  {col:0,label:'Cooking Oil'},
+  {col:0,label:'Salt & Pepper'},
+  {col:0,label:'Rice / Pasta'},
+  {col:0,type:'sub',label:'First Night'},
+  {col:0,label:'Bread'},
+  {col:0,label:'Butter'},
+  {col:0,label:'Milk'},
+  {col:0,type:'sub',label:'Hot Drinks'},
+  {col:0,label:'Teabags'},
+  {col:0,label:'Instant Coffee'},
+  {col:0,label:'Filter Coffee'},
+  {col:0,label:'Coffee Press + Filters'},
+  {col:0,label:'Whisk'},
+  {col:0,label:'Sugar'},
+  {col:1,type:'sec',label:'Money & Documents'},
+  {col:1,type:'sub',label:'Wallet'},
+  {col:1,label:'Debit Card'},
+  {col:1,label:'Credit Card'},
+  {col:1,label:'Car Hire Membership Card'},
+  {col:1,label:'Euros / Local Currency'},
+  {col:1,label:'Emergency Cash'},
+  {col:1,type:'sub',label:'Paperwork'},
+  {col:1,label:'Passports — check expiry!'},
+  {col:1,label:'Car Hire Documents'},
+  {col:1,label:'Accommodation Directions'},
+  {col:1,label:'Airport Parking Confirmation'},
+  {col:1,label:'Travel Insurance Docs'},
+  {col:1,label:'Air Tickets / Boarding Passes'},
+  {col:1,label:'EHIC / GHIC Health Card'},
+  {col:1,label:'Driving Licence'},
+  {col:1,label:'Visa (if required)'},
+  {col:1,label:'International Driving Permit (if required)'},
+  {col:1,label:'Printed Itinerary'},
+  {col:1,type:'sec',label:'Gadgets & Tech'},
+  {col:1,type:'sub',label:'Devices'},
+  {col:1,label:'Mobile Phone'},
+  {col:1,label:'Watch'},
+  {col:1,label:'Laptop'},
+  {col:1,label:'Camera'},
+  {col:1,label:'Memory Cards'},
+  {col:1,label:'E-Reader — preloaded'},
+  {col:1,type:'sub',label:'Chargers'},
+  {col:1,label:'Phone Mains Charger'},
+  {col:1,label:'Phone In-Car Charger & Cradle'},
+  {col:1,label:'Watch Charger'},
+  {col:1,label:'Laptop Mains Charger'},
+  {col:1,label:'E-Reader Charger'},
+  {col:1,label:'Portable Power Bank'},
+  {col:1,type:'sub',label:'Cables & Adapters'},
+  {col:1,label:'USB-C Cables (x2)'},
+  {col:1,label:'USB-B Cables (x2)'},
+  {col:1,label:'Lightning Cable'},
+  {col:1,label:'HDMI Cable'},
+  {col:1,label:'Adapter Plugs (x8)'},
+  {col:1,label:'HDMI / USB Hub'},
+  {col:1,label:'Hard Drive'},
+  {col:1,label:'Earphones'},
+  {col:1,label:'Extension Lead'},
+  {col:1,type:'sec',label:'For the Journey'},
+  {col:1,type:'sub',label:'Sustenance'},
+  {col:1,label:'Drinks'},
+  {col:1,label:'Crisps'},
+  {col:1,label:'Sweets'},
+  {col:1,label:'Fruit'},
+  {col:1,type:'sub',label:'Entertainment'},
+  {col:1,label:'Films / Podcasts / Music — loaded'},
+  {col:1,label:'Backup Glasses / Sunglasses'},
+  {col:1,label:'Neck Pillow'},
+  {col:1,label:'Compression Socks'},
+  {col:1,label:'Face Mask'},
+  {col:1,type:'sub',label:'If Driving to the Airport'},
+  {col:1,label:'Picnic Bag'},
+  {col:1,label:'Ice Blocks (frozen)'},
+  {col:1,type:'sec',label:'Jobs Before Leaving'},
+  {col:1,type:'sub',label:'Charge Everything'},
+  {col:1,label:'Mobile'},
+  {col:1,label:'Watch'},
+  {col:1,label:'Laptop'},
+  {col:1,label:'E-Reader'},
+  {col:1,label:'Earphones'},
+  {col:1,label:'Power Bank'},
+  {col:1,type:'sub',label:'House'},
+  {col:1,label:'Turn Heating Off'},
+  {col:1,label:'Water Plants'},
+  {col:1,label:'Clean Sinks & Toilets'},
+  {col:1,label:'Set Up Lights & Curtains'},
+  {col:1,label:'Empty Fridge'},
+  {col:1,label:'Take Out Bins'},
+  {col:1,label:'Lock Windows & Doors'},
+  {col:1,label:'Inform Neighbour'},
+  {col:1,label:'Arrange Pet Care'},
+  {col:1,label:'Check Weather Forecast'},
+  {col:1,type:'sub',label:'Online — Confirmed?'},
+  {col:1,label:'Travel Insurance'},
+  {col:1,label:'Airport Transport / Parking'},
+  {col:1,label:'Air Tickets'},
+  {col:1,label:'Online Check-In'},
+  {col:1,label:'Car Hire'},
+  {col:1,label:'Accommodation'},
+  {col:1,label:'Notify Bank of Travel'},
+  {col:1,type:'sec',label:'Miscellaneous'},
+  {col:1,label:'Sunglasses'},
+  {col:1,label:'Luggage Locks'},
+  {col:1,label:'Luggage Tags'},
+  {col:1,label:'Day Backpack'},
+  {col:1,label:'Umbrella'},
+  {col:1,label:'Reusable Water Bottle'},
+  {col:1,label:'Sewing Kit / Stain Remover'},
+];
+
+const SEC_ICONS = {
+  'Clothes':'👕',
+  'Toiletries':'🧴',
+  'Medications':'💊',
+  'Beach':'🏖️',
+  'Leisure & Entertainment':'🎲',
+  'Food & Drink':'🍽️',
+  'Money & Documents':'💳',
+  'Gadgets & Tech':'🔌',
+  'For the Journey':'🚗',
+  'Jobs Before Leaving':'🔑',
+  'Miscellaneous':'🧳',
+};
+const DEFAULT_ICON = '🗂️';
+
+const ICONS = ['?','✓','✗'];
+const CLASSES = ['','taking','ignore'];
+const STORE_KEY = 'hol_profiles_v1';       // previous single-layer version (read-only, for migration)
+const STORE_KEY_V2 = 'hol_trips_types_v1'; // current: Trips + Trip Templates — key name kept as-is, it's the persisted localStorage key
+
+let types = [];          // reusable Trip Templates
+let trips = [];          // actual destination-based trips, each based on a template
+let activeTripId = null;
+let viewMode = 'trip';    // 'trip' (normal checklist) | 'template' (editing a Trip Template)
+let editingTemplateId = null;
+let editMode = false;
+let filterStates = new Set(['none','taking','ignore']); // which item states are currently shown — cumulative, not radio
+let filterNewOnly = false; // additionally restrict to isNew items
+let filterImportantOnly = false; // additionally restrict to important items
+let searchQuery = ''; // as-you-type item-label search, debounced before it affects rendering
+let searchDebounceTimer = null;
+const SEARCH_DEBOUNCE_MS = 300;
+// null = "no manual collapse/expand yet" -> every section counts as collapsed by
+// default; once you toggle one, this becomes a real Map<sectionId, forcedOpen> that
+// always wins over the search auto-expand default, and holds until the owner changes.
+let collapsedSectionsOverride = null;
+let draggedSectionId = null; // tracks which section is being dragged in template mode
+const IMPORTANT_SECTION_KEY = '__important__';
+let currentModal = null;
+let undoStack = [];
+const UNDO_LIMIT = 30;
+const BACKUP_INTERVAL_MS = 5*60*1000; // rolling backups every 5 minutes
+const BACKUP_LIMIT = 12;              // ~1 hour of history per trip
+
+function uid(prefix){ return prefix+'_'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4); }
+// Thin-stroke chevron, one shape rotated by CSS transform rather than swapping
+// glyphs — guarantees identical, precisely-centered geometry in both states.
+function chevronHTML(open){
+  return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(${open?0:-90}deg);transition:transform .15s"><path d="M6 9l6 6 6-6"/></svg>`;
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function currentMonthYear(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function formatMonthYear(ym){
+  if(!ym) return '';
+  const [y,m]=ym.split('-').map(Number);
+  if(!y||!m) return '';
+  const names=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return `${names[m-1]} ${y}`;
+}
+function cloneItems(list){ return list.map(d=> d.type ? {...d, id:uid(d.type)} : {...d, id:uid('i'), state:0}); }
+
+function defaultItems(){
+  return RAW_DEFAULT.map(d=> d.type ? {...d, id: uid(d.type)} : {...d, id: uid('i'), state:0});
+}
+
+// Best-effort destination -> country-flag lookup (substring match against the
+// freeform Destination text). Deliberately not exhaustive — common countries
+// and their most-searched cities only — falls back to a generic pin.
+const DESTINATION_ICONS = [
+  ['united states','🇺🇸'],['usa','🇺🇸'],['america','🇺🇸'],['new york','🇺🇸'],['los angeles','🇺🇸'],
+  ['chicago','🇺🇸'],['miami','🇺🇸'],['san francisco','🇺🇸'],['las vegas','🇺🇸'],['orlando','🇺🇸'],['hawaii','🇺🇸'],
+  ['united kingdom','🇬🇧'],['britain','🇬🇧'],['england','🇬🇧'],['scotland','🇬🇧'],['wales','🇬🇧'],
+  ['london','🇬🇧'],['edinburgh','🇬🇧'],['manchester','🇬🇧'],
+  ['france','🇫🇷'],['paris','🇫🇷'],['nice','🇫🇷'],['lyon','🇫🇷'],
+  ['italy','🇮🇹'],['rome','🇮🇹'],['milan','🇮🇹'],['venice','🇮🇹'],['florence','🇮🇹'],['naples','🇮🇹'],
+  ['spain','🇪🇸'],['madrid','🇪🇸'],['barcelona','🇪🇸'],['ibiza','🇪🇸'],['seville','🇪🇸'],
+  ['germany','🇩🇪'],['berlin','🇩🇪'],['munich','🇩🇪'],
+  ['japan','🇯🇵'],['tokyo','🇯🇵'],['osaka','🇯🇵'],['kyoto','🇯🇵'],
+  ['china','🇨🇳'],['beijing','🇨🇳'],['shanghai','🇨🇳'],
+  ['australia','🇦🇺'],['sydney','🇦🇺'],['melbourne','🇦🇺'],['brisbane','🇦🇺'],
+  ['canada','🇨🇦'],['toronto','🇨🇦'],['vancouver','🇨🇦'],['montreal','🇨🇦'],
+  ['mexico','🇲🇽'],['cancun','🇲🇽'],
+  ['brazil','🇧🇷'],['rio','🇧🇷'],
+  ['india','🇮🇳'],['delhi','🇮🇳'],['mumbai','🇮🇳'],['goa','🇮🇳'],
+  ['thailand','🇹🇭'],['bangkok','🇹🇭'],['phuket','🇹🇭'],['chiang mai','🇹🇭'],
+  ['greece','🇬🇷'],['athens','🇬🇷'],['santorini','🇬🇷'],['mykonos','🇬🇷'],['crete','🇬🇷'],
+  ['portugal','🇵🇹'],['lisbon','🇵🇹'],['porto','🇵🇹'],['algarve','🇵🇹'],
+  ['netherlands','🇳🇱'],['holland','🇳🇱'],['amsterdam','🇳🇱'],
+  ['switzerland','🇨🇭'],['zurich','🇨🇭'],['geneva','🇨🇭'],
+  ['austria','🇦🇹'],['vienna','🇦🇹'],['salzburg','🇦🇹'],
+  ['ireland','🇮🇪'],['dublin','🇮🇪'],
+  ['iceland','🇮🇸'],['reykjavik','🇮🇸'],
+  ['norway','🇳🇴'],['oslo','🇳🇴'],
+  ['sweden','🇸🇪'],['stockholm','🇸🇪'],
+  ['denmark','🇩🇰'],['copenhagen','🇩🇰'],
+  ['turkey','🇹🇷'],['istanbul','🇹🇷'],
+  ['egypt','🇪🇬'],['cairo','🇪🇬'],
+  ['morocco','🇲🇦'],['marrakech','🇲🇦'],['casablanca','🇲🇦'],
+  ['south africa','🇿🇦'],['cape town','🇿🇦'],['johannesburg','🇿🇦'],
+  ['dubai','🇦🇪'],['abu dhabi','🇦🇪'],['uae','🇦🇪'],
+  ['indonesia','🇮🇩'],['bali','🇮🇩'],['jakarta','🇮🇩'],
+  ['vietnam','🇻🇳'],['hanoi','🇻🇳'],['ho chi minh','🇻🇳'],
+  ['singapore','🇸🇬'],
+  ['south korea','🇰🇷'],['korea','🇰🇷'],['seoul','🇰🇷'],
+  ['new zealand','🇳🇿'],['auckland','🇳🇿'],
+  ['croatia','🇭🇷'],['dubrovnik','🇭🇷'],
+  ['poland','🇵🇱'],['warsaw','🇵🇱'],['krakow','🇵🇱'],
+  ['czech','🇨🇿'],['prague','🇨🇿'],
+  ['hungary','🇭🇺'],['budapest','🇭🇺'],
+  ['belgium','🇧🇪'],['brussels','🇧🇪'],
+  ['malta','🇲🇹'],
+  ['cyprus','🇨🇾'],
+  ['finland','🇫🇮'],['helsinki','🇫🇮'],
+];
+function destinationIcon(destination){
+  const d=(destination||'').toLowerCase();
+  for(const [key,flag] of DESTINATION_ICONS){ if(d.includes(key)) return flag; }
+  return '📍';
+}
+
+// Best-effort trip-type icon guessed from keywords already present in the
+// Subtitle field (e.g. "Whole Family", "Just Me", "Business trip") — returns
+// '' (no icon) rather than a generic fallback, so plain/ambiguous subtitles
+// don't clutter the trip tabs with a meaningless icon.
+function tripTypeIcon(subtitle){
+  const s=(subtitle||'').toLowerCase();
+  if(/\bfamily\b|\bkids?\b|\bchildren\b|\bparents\b/.test(s)) return '👨‍👩‍👧‍👦';
+  if(/\bsolo\b|\bjust me\b|\bmyself\b/.test(s)) return '🧍';
+  if(/\bcouple\b|\bpartner\b|\bhoneymoon\b|\bromantic\b/.test(s)) return '💑';
+  if(/\bfriends\b|\bmates\b|\bgirls\b|\bboys\b|\bgroup\b/.test(s)) return '👯';
+  if(/\bwork\b|\bbusiness\b|\bconference\b|\bcolleagues\b|\bcorporate\b/.test(s)) return '💼';
+  return '';
+}
+
+// Combined "destination + trip type" icon prefix used everywhere a trip's
+// identity is shown (trip tabs, hero header, Trip settings).
+function tripIcons(trip){
+  if(!trip) return '';
+  const parts=[destinationIcon(trip.name)];
+  const t=tripTypeIcon(trip.subtitle);
+  if(t) parts.push(t);
+  return parts.join(' ');
+}
+
+function activeTrip(){ return trips.find(t=>t.id===activeTripId) || trips[0]; }
+function activeTemplate(){ return types.find(t=>t.id===editingTemplateId); }
+// Whatever list is currently on screen — the active Trip normally, or the Trip
+// Template being edited when in template-editing mode. Almost every item-editing
+// function (add/rename/delete item, section, sub-section) works against this,
+// so the exact same editor is reused for both Trips and Trip Templates.
+function currentItemsOwner(){
+  if(viewMode==='template'){ return activeTemplate() || activeTrip(); }
+  return activeTrip();
+}
+
+function saveStore(){
+  try{ localStorage.setItem(STORE_KEY_V2, JSON.stringify({activeTripId, trips, types})); }catch(e){}
+}
+
+// Everything the app knows (all Trips + all Trip Templates) lives only in this
+// browser's localStorage, so it doesn't travel with the .html file itself.
+// These two functions let you download it as a .json file on one computer
+// and load it back in on another (e.g. moving from Windows to a Mac).
+function exportBackup(){
+  const data={activeTripId, trips, types};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url; a.download=`packing-checklist-backup-${stamp}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+function triggerRestore(){
+  document.getElementById('restore-file-input').click();
+}
+function handleRestoreFile(e){
+  const input=e.target;
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let parsed;
+    try{ parsed=JSON.parse(reader.result); }catch(err){
+      showInfo('Couldn’t read that file', 'That doesn’t look like valid JSON. Make sure you pick a backup file created with the “⬇️ Backup” button.');
+      input.value=''; return;
+    }
+    if(!parsed || !Array.isArray(parsed.trips) || !Array.isArray(parsed.types) || !parsed.trips.length){
+      showInfo('Couldn’t read that file', 'That file doesn’t look like a packing-checklist backup.');
+      input.value=''; return;
+    }
+    showConfirm(
+      `Restore this backup? It contains ${parsed.trips.length} trip(s) and ${parsed.types.length} trip template(s). This replaces everything currently saved in this browser — there’s no undo for this one.`,
+      ()=>{
+        trips=parsed.trips;
+        types=parsed.types;
+        trips.forEach(t=>{ if(!Array.isArray(t.backups)) t.backups=[]; });
+        activeTripId=(parsed.activeTripId && trips.find(t=>t.id===parsed.activeTripId)) ? parsed.activeTripId : trips[0].id;
+        viewMode='trip'; editingTemplateId=null; editMode=false; undoStack=[];
+        collapsedSectionsOverride=null;
+        resetFiltersAndSearch();
+        saveStore();
+        renderAll();
+        input.value='';
+      },
+      {confirmLabel:'Restore', danger:true, title:'Restore backup', onCancel:()=>{ input.value=''; }}
+    );
+  };
+  reader.readAsText(file);
+}
+
+function loadStore(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY_V2);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      if(parsed && Array.isArray(parsed.trips) && parsed.trips.length && Array.isArray(parsed.types)){
+        trips=parsed.trips;
+        types=parsed.types;
+        trips.forEach(t=>{ if(!Array.isArray(t.backups)) t.backups=[]; });
+        activeTripId=(parsed.activeTripId && trips.find(t=>t.id===parsed.activeTripId)) ? parsed.activeTripId : trips[0].id;
+        return;
+      }
+    }
+  }catch(e){}
+
+  // Migrate from the previous single-layer "Trip Templates as profiles" version.
+  try{
+    const oldRaw=localStorage.getItem(STORE_KEY);
+    if(oldRaw){
+      const oldParsed=JSON.parse(oldRaw);
+      if(oldParsed && Array.isArray(oldParsed.profiles) && oldParsed.profiles.length){
+        trips=[]; types=[];
+        let activeIdx=oldParsed.profiles.findIndex(p=>p.id===oldParsed.activeId);
+        if(activeIdx<0) activeIdx=0;
+        oldParsed.profiles.forEach((p,i)=>{
+          const template={id:uid('type'), name:p.name, subtitle:p.subtitle||'', items:cloneItems(p.items)};
+          types.push(template);
+          // The trip keeps the profile's real progress (unlike the fresh, reset template above).
+          const tripItems=p.items.map(d=> d.type ? {...d,id:uid(d.type)} : {...d,id:uid('i'),state:d.state||0});
+          const trip={id:uid('trip'), name:p.name, subtitle:p.subtitle||'', typeId:template.id, typeName:template.name, createdAt:Date.now(), items:tripItems, backups:[]};
+          trips.push(trip);
+          if(i===activeIdx) activeTripId=trip.id;
+        });
+        if(!activeTripId) activeTripId=trips[0].id;
+        saveStore();
+        return;
+      }
+    }
+  }catch(e){}
+
+  // Fresh install — seed one default Trip Template + a starter Trip, migrating the
+  // very old flat (pre-profiles) state key if it's somehow still present.
+  const baseItems=defaultItems();
+  try{
+    const old=JSON.parse(localStorage.getItem('hol2')||'{}');
+    baseItems.forEach((it,i)=>{ if(it.state!==undefined && old[i]!==undefined) it.state=+old[i]; });
+  }catch(e){}
+  const template={id:uid('type'), name:'Holiday Abroad', subtitle:'For 2 of us', items:cloneItems(baseItems)};
+  types=[template];
+  const trip={id:uid('trip'), name:'My Trip', subtitle:template.subtitle, typeId:template.id, typeName:template.name, createdAt:Date.now(), items:baseItems, backups:[]};
+  trips=[trip];
+  activeTripId=trip.id;
+  saveStore();
+}
+
+/* ---------- Theme ---------- */
+function loadTheme(){
+  let t='light';
+  try{ t=localStorage.getItem('hol2-theme')||'light'; }catch(e){}
+  setTheme(t);
+}
+function setTheme(t){
+  document.body.setAttribute('data-theme',t);
+  try{localStorage.setItem('hol2-theme',t);}catch(e){}
+  const themeLabel=document.getElementById('theme-label');
+  if(themeLabel) themeLabel.textContent = t==='dark' ? 'Light mode' : 'Dark mode';
+  const themeIcon=document.querySelector('.settings-item .settings-icon');
+  if(themeIcon) themeIcon.textContent = t==='dark' ? '☀️' : '🌙';
+}
+function toggleTheme(){
+  setTheme(document.body.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+}
+function toggleSettingsDropdown(){
+  const menu=document.getElementById('settings-menu');
+  if(menu) menu.classList.toggle('show');
+}
+// Close dropdown when clicking outside
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('settings-menu');
+  const toggle=document.querySelector('.settings-toggle');
+  if(menu && !menu.contains(e.target) && !toggle.contains(e.target)) menu.classList.remove('show');
+});
+
+
+/* ---------- Modal helpers ---------- */
+function modalKeyHandler(e){ if(e.key==='Escape') closeModal(); }
+function openModal(innerHtml){
+  closeModal();
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.innerHTML=`<div class="modal-card">${innerHtml}</div>`;
+  overlay.addEventListener('mousedown',e=>{ if(e.target===overlay) closeModal(); });
+  document.body.appendChild(overlay);
+  currentModal=overlay;
+  document.addEventListener('keydown',modalKeyHandler);
+  return overlay;
+}
+function closeModal(){
+  if(currentModal){ currentModal.remove(); currentModal=null; }
+  document.removeEventListener('keydown',modalKeyHandler);
+}
+function showConfirm(message, onYes, opts){
+  opts=opts||{};
+  const confirmLabel=opts.confirmLabel||'Delete';
+  const btnClass=opts.danger===false ? 'modal-btn primary' : 'modal-btn danger';
+  const overlay=openModal(`
+    <h3>${opts.title?escapeHtml(opts.title):'Are you sure?'}</h3>
+    <p class="modal-msg">${message}</p>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modal-cancel">Cancel</button>
+      <button class="${btnClass}" id="modal-yes">${escapeHtml(confirmLabel)}</button>
+    </div>`);
+  overlay.querySelector('#modal-cancel').onclick=()=>{ closeModal(); if(opts.onCancel) opts.onCancel(); };
+  overlay.querySelector('#modal-yes').onclick=()=>{ closeModal(); onYes(); };
+}
+function showInfo(title, message){
+  const overlay=openModal(`
+    <h3>${escapeHtml(title)}</h3>
+    <p class="modal-msg">${message}</p>
+    <div class="modal-actions">
+      <button class="modal-btn primary" id="info-ok">OK</button>
+    </div>`);
+  overlay.querySelector('#info-ok').onclick=closeModal;
+}
+
+// Group a flat item list (RAW_DEFAULT, a Trip Template's items, or a Trip's items)
+// into per-section blocks: each block is [sectionHeader, ...everything under it].
+function groupIntoBlocks(list){
+  const blocks=[];
+  let current=null;
+  list.forEach(d=>{
+    if(d.type==='sec'){ current=[d]; blocks.push(current); }
+    else { if(!current){ current=[]; blocks.push(current); } current.push(d); }
+  });
+  return blocks.filter(b=>b.length);
+}
+
+/* ---------- Trips ---------- */
+function renderTripBar(){
+  const bar=document.getElementById('profile-bar');
+  bar.innerHTML='';
+  trips.forEach(t=>{
+    const tab=document.createElement('div');
+    tab.className='profile-tab'+(t.id===activeTripId?' active':'');
+    const iconSpan=document.createElement('span');
+    iconSpan.className='trip-icon';
+    iconSpan.textContent=tripIcons(t);
+    const typeGuess=tripTypeIcon(t.subtitle);
+    iconSpan.title = typeGuess ? `Destination: ${t.name} · ${t.subtitle}` : `Destination: ${t.name}`;
+    tab.appendChild(iconSpan);
+    const nameSpan=document.createElement('span');
+    nameSpan.textContent=t.name;
+    tab.appendChild(nameSpan);
+    if(t.id===activeTripId){
+      const kebab=document.createElement('span');
+      kebab.className='kebab';
+      kebab.textContent='⋯';
+      kebab.title='Trip options';
+      kebab.onclick=(e)=>{ e.stopPropagation(); openTripSettingsModal(t.id); };
+      tab.appendChild(kebab);
+    }
+    tab.addEventListener('click',()=>switchTrip(t.id));
+    bar.appendChild(tab);
+  });
+  const addBtn=document.createElement('button');
+  addBtn.className='profile-add-btn';
+  addBtn.textContent='+ New trip';
+  addBtn.onclick=()=>openNewTripModal();
+  addBtn.title='Create a new trip';
+  bar.appendChild(addBtn);
+}
+
+// Which Trip Template the active trip was created from — shown in the hero,
+// right alongside the subtitle, so it's clear at a glance without opening
+// Trip settings.
+function renderBasedOnRow(trip){
+  const row=document.getElementById('hero-based-on');
+  if(!trip){ row.innerHTML=''; return; }
+  if(trip.typeName){
+    row.classList.remove('missing');
+    row.innerHTML = `🧩 Based on: <b>${escapeHtml(trip.typeName)}</b>`;
+  } else {
+    row.classList.add('missing');
+    row.textContent = 'Its original Trip Template no longer exists.';
+  }
+}
+
+function switchTrip(id){
+  if(viewMode==='trip' && id===activeTripId) return;
+  activeTripId=id;
+  viewMode='trip';
+  collapsedSectionsOverride=null;
+  resetFiltersAndSearch();
+  saveStore();
+  renderAll();
+}
+
+function openNewTripModal(){
+  if(!types.length){
+    showInfo('No Trip Templates yet','Create a Trip Template first via "⚙️ Manage Trip Templates", then you can start a trip from it.');
+    return;
+  }
+  const options=types.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  const overlay=openModal(`
+    <h3>New trip</h3>
+    <label class="field-label">Trip template</label>
+    <select id="nt-type">${options}</select>
+    <input type="text" id="nt-dest" placeholder="Destination (e.g. Rome)" autocomplete="off">
+    <label class="field-label">Date</label>
+    <input type="month" id="nt-date" value="${currentMonthYear()}">
+    <input type="text" id="nt-subtitle" list="subtitle-suggestions" placeholder="Subtitle (e.g. Whole Family) — optional" autocomplete="off">
+    <div class="modal-actions">
+      <button class="modal-btn" id="nt-cancel">Cancel</button>
+      <button class="modal-btn primary" id="nt-create">Create trip</button>
+    </div>`);
+  const destInput=overlay.querySelector('#nt-dest');
+  setTimeout(()=>destInput.focus(),0);
+  overlay.querySelector('#nt-cancel').onclick=closeModal;
+  overlay.querySelector('#nt-create').onclick=()=>{
+    const dest=destInput.value.trim();
+    if(!dest){ destInput.focus(); return; }
+    const typeId=overlay.querySelector('#nt-type').value;
+    const date=overlay.querySelector('#nt-date').value || currentMonthYear();
+    const subtitle=overlay.querySelector('#nt-subtitle').value.trim();
+    createTrip(typeId, dest, subtitle, date);
+    closeModal();
+  };
+  destInput.addEventListener('keydown',e=>{ if(e.key==='Enter') overlay.querySelector('#nt-create').click(); });
+}
+
+function createTrip(typeId, destination, subtitle, date){
+  const template=types.find(t=>t.id===typeId) || types[0];
+  const trip={
+    id:uid('trip'), name:destination, subtitle: subtitle || template.subtitle || '',
+    date: date || currentMonthYear(),
+    typeId:template.id, typeName:template.name, createdAt:Date.now(),
+    items: cloneItems(template.items), backups:[]
+  };
+  trips.push(trip);
+  activeTripId=trip.id;
+  viewMode='trip';
+  collapsedSectionsOverride=null;
+  resetFiltersAndSearch();
+  saveStore();
+  renderAll();
+}
+
+// Trip settings is a single dialog with two "views": the settings form and
+// (swapped in when Version history is clicked) the backup list — reopening
+// the modal with view='history' rather than a separate VersionHistoryDialog.
+function openTripSettingsModal(id, view){
+  view = view || 'main';
+  const t=trips.find(x=>x.id===id);
+  if(!t) return;
+
+  if(view==='history'){
+    const backups=(t.backups||[]);
+    const rows=backups.slice().reverse().map((b)=>{
+      const realIndex=backups.indexOf(b);
+      const itemCount=b.items.filter(x=>!x.type).length;
+      const takingCount=b.items.filter(x=>x.state===1).length;
+      return `<div class="version-row">
+        <div class="version-row-info"><b>${escapeHtml(new Date(b.ts).toLocaleString())}</b><span>${itemCount} items · ${takingCount} taking</span></div>
+        <button class="modal-btn" data-restore="${realIndex}">Restore</button>
+      </div>`;
+    }).join('');
+    const overlay=openModal(`
+      <div class="version-back" id="vh-back">← Back to Trip settings</div>
+      <h3>Version history — ${escapeHtml(t.name)}</h3>
+      <p class="modal-msg">Automatic snapshots are taken roughly every 5 minutes while this trip is open and changing (kept: last ${BACKUP_LIMIT}). Restoring replaces the current list — you can Undo right after.</p>
+      <div class="version-list">${rows || '<p class="modal-msg">No backups yet — check back after making some changes.</p>'}</div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="vh-close">Close</button>
+      </div>`);
+    overlay.querySelector('#vh-back').onclick=()=>openTripSettingsModal(id,'main');
+    overlay.querySelectorAll('[data-restore]').forEach(btn=>{
+      btn.onclick=()=>{
+        const idx=+btn.dataset.restore;
+        const backup=t.backups[idx];
+        if(!backup) return;
+        closeModal();
+        showConfirm(`Restore the version from ${escapeHtml(new Date(backup.ts).toLocaleString())}? Your current list will be replaced (Undo available right after).`, ()=>{
+          pushUndo();
+          t.items=JSON.parse(JSON.stringify(backup.items));
+          activeTripId=t.id; viewMode='trip';
+          collapsedSectionsOverride=null;
+          resetFiltersAndSearch();
+          saveStore(); renderAll();
+        }, {confirmLabel:'Restore', danger:false});
+      };
+    });
+    overlay.querySelector('#vh-close').onclick=closeModal;
+    return;
+  }
+
+  const canDelete = trips.length>1;
+  const typeNote = t.typeName ? `Based on: <b>${escapeHtml(t.typeName)}</b>` : 'Its original Trip Template no longer exists.';
+  const overlay=openModal(`
+    <h3>${tripIcons(t)} Trip settings</h3>
+    <div class="settings-note"><span class="si">📄</span>${typeNote}</div>
+    <label class="field-label">📍 Destination</label>
+    <input type="text" id="ts-name" value="${escapeHtml(t.name)}" placeholder="Destination">
+    <label class="field-label">📅 Date</label>
+    <input type="month" id="ts-date" value="${escapeHtml(t.date||currentMonthYear())}">
+    <label class="field-label">👥 Subtitle</label>
+    <input type="text" id="ts-subtitle" list="subtitle-suggestions" value="${escapeHtml(t.subtitle||'')}" placeholder="Subtitle (e.g. Whole Family)">
+    <div class="settings-divider"></div>
+    <button class="settings-row" id="ts-reset"><span class="si">🔄</span>Reset all</button>
+    <button class="settings-row" id="ts-restore"><span class="si">♻️</span>Restore missing from template</button>
+    <button class="settings-row" id="ts-history"><span class="si">🕓</span>Version history</button>
+    <div class="settings-divider"></div>
+    <button class="settings-row danger" id="ts-delete" ${canDelete?'':'disabled style="opacity:.4;cursor:not-allowed"'}><span class="si">🗑️</span>Delete trip</button>
+    <div class="modal-actions">
+      <button class="modal-btn" id="ts-cancel">Cancel</button>
+      <button class="modal-btn primary" id="ts-save">Save</button>
+    </div>`);
+  overlay.querySelector('#ts-cancel').onclick=closeModal;
+  overlay.querySelector('#ts-save').onclick=()=>{
+    const name=overlay.querySelector('#ts-name').value.trim();
+    if(!name) return;
+    t.name=name;
+    t.date=overlay.querySelector('#ts-date').value || t.date;
+    t.subtitle=overlay.querySelector('#ts-subtitle').value.trim();
+    saveStore(); closeModal(); renderAll();
+  };
+  overlay.querySelector('#ts-reset').onclick=()=>{
+    closeModal();
+    showConfirm(`Reset all items in "${escapeHtml(t.name)}" back to Still to do? Important flags are kept. You can Undo right after.`, resetAll, {confirmLabel:'Reset all', danger:true});
+  };
+  overlay.querySelector('#ts-restore').onclick=()=>{ closeModal(); restoreMissingFromTemplate(t); };
+  overlay.querySelector('#ts-history').onclick=()=>{ openTripSettingsModal(id,'history'); };
+  if(canDelete){
+    overlay.querySelector('#ts-delete').onclick=()=>{
+      closeModal();
+      showConfirm(`Delete trip "${escapeHtml(t.name)}" and all its items? You can Undo right after if you change your mind.`, ()=>{
+        pushUndoTripDelete(t, trips.indexOf(t));
+        trips = trips.filter(x=>x.id!==id);
+        if(activeTripId===id) activeTripId=trips[0].id;
+        collapsedSectionsOverride=null;
+        resetFiltersAndSearch();
+        saveStore(); renderAll();
+      });
+    };
+  }
+}
+
+// Re-add any sections that exist in this trip's original Trip Template but are
+// currently missing from the trip (e.g. after an accidental delete).
+function restoreMissingFromTemplate(trip){
+  const template=types.find(t=>t.id===trip.typeId);
+  if(!template){
+    showInfo('No Trip Template found', `This trip's original Trip Template${trip.typeName?` ("${escapeHtml(trip.typeName)}")`:''} no longer exists, so there's nothing to restore from.`);
+    return;
+  }
+  const existingLabels=new Set(trip.items.filter(x=>x.type==='sec').map(x=>String(x.label).trim().toLowerCase()));
+  const templateBlocks=groupIntoBlocks(template.items);
+  const missingBlocks=templateBlocks.filter(b=>!existingLabels.has(String(b[0].label).trim().toLowerCase()));
+  if(missingBlocks.length===0){
+    showInfo('Nothing to restore', `All the sections from "${escapeHtml(template.name)}" are already present in this trip.`);
+    return;
+  }
+  const names=missingBlocks.map(b=>escapeHtml(b[0].label)).join(', ');
+  showConfirm(
+    `Restore ${missingBlocks.length} missing section${missingBlocks.length>1?'s':''} from "${escapeHtml(template.name)}" (${names})? They'll be added back with the template's current items, all unchecked.`,
+    ()=>{
+      pushUndo();
+      missingBlocks.forEach(block=>{ block.forEach(d=> trip.items.push(d.type?{...d,id:uid(d.type)}:{...d,id:uid('i'),state:0})); });
+      saveStore(); renderAll();
+    },
+    {confirmLabel:'Restore', danger:false}
+  );
+}
+
+// Same "walk backwards to the nearest headers" idea as findItemLocation(),
+// but returns the raw section/sub-section labels (not a formatted caption) —
+// used to find the matching spot in the template for addNewItemToTemplate().
+function findItemSectionLabels(items, idx){
+  let secLabel=null, subLabel=null;
+  for(let j=idx-1;j>=0;j--){
+    if(items[j].type==='sub' && !subLabel) subLabel=items[j].label;
+    if(items[j].type==='sec'){ secLabel=items[j].label; break; }
+  }
+  return {secLabel, subLabel};
+}
+// Index of the next section/sub-section header after startIdx (or the
+// array length) — i.e. where the current run of leaf items ends.
+function runEnd(items, startIdx){
+  let j=startIdx+1;
+  while(j<items.length && !items[j].type) j++;
+  return j;
+}
+
+// Long-press on a "★ new" item's badge (trip view only) syncs that one item
+// back into the trip's original Trip Template, in the matching section/
+// sub-section (creating it there if the trip has one the template doesn't),
+// so a suggestion you like sticks around for future trips too. Skips
+// silently if a same-named item is already there. Returns true (added),
+// false (already present), or null (no template to add it to — surfaced
+// via showInfo instead).
+function addNewItemToTemplate(itemId){
+  if(viewMode!=='trip') return null;
+  const trip=activeTrip();
+  const template=types.find(t=>t.id===trip.typeId);
+  if(!template){
+    showInfo('No Trip Template found', `This trip's original Trip Template${trip.typeName?` ("${escapeHtml(trip.typeName)}")`:''} no longer exists, so there's nowhere to add this item.`);
+    return null;
+  }
+  const idx=trip.items.findIndex(x=>x.id===itemId);
+  if(idx===-1) return null;
+  const item=trip.items[idx];
+  const {secLabel, subLabel}=findItemSectionLabels(trip.items, idx);
+  const norm=s=>String(s||'').trim().toLowerCase();
+
+  let secIdx=template.items.findIndex(x=>x.type==='sec' && norm(x.label)===norm(secLabel));
+  if(secIdx===-1){
+    template.items.push({id:uid('sec'), type:'sec', label:secLabel});
+    secIdx=template.items.length-1;
+  }
+  const sectionEnd=()=>{
+    for(let j=secIdx+1;j<template.items.length;j++){ if(template.items[j].type==='sec') return j; }
+    return template.items.length;
+  };
+
+  // Same label already present anywhere in this section? Don't add a duplicate —
+  // but it's confirmed to be in the template either way, so it's not "new" anymore.
+  const already=template.items.slice(secIdx+1, sectionEnd()).some(x=>!x.type && norm(x.label)===norm(item.label));
+  if(already){
+    item.isNew=false;
+    saveStore();
+    return false;
+  }
+
+  let insertAt;
+  if(subLabel){
+    let subIdx=-1;
+    for(let j=secIdx+1;j<sectionEnd();j++){ if(template.items[j].type==='sub' && norm(template.items[j].label)===norm(subLabel)){ subIdx=j; break; } }
+    if(subIdx===-1){
+      insertAt=sectionEnd();
+      template.items.splice(insertAt,0,{id:uid('sub'), type:'sub', label:subLabel});
+      insertAt+=1;
+    } else {
+      insertAt=runEnd(template.items, subIdx);
+    }
+  } else {
+    insertAt=secIdx+1; // a section-direct item — right after the section header
+  }
+  template.items.splice(insertAt,0,{id:uid('i'), label:item.label, state:0});
+  item.isNew=false;
+  saveStore();
+  return true;
+}
+
+function attachNewBadgeLongPress(badge, itemId){
+  const LONG_PRESS_MS=550;
+  let timer=null;
+  const start=(e)=>{ e.stopPropagation(); timer=setTimeout(()=>{ timer=null; onNewBadgeLongPress(badge, itemId); }, LONG_PRESS_MS); };
+  const cancel=()=>{ if(timer){ clearTimeout(timer); timer=null; } };
+  badge.addEventListener('mousedown', start);
+  badge.addEventListener('mouseup', cancel);
+  badge.addEventListener('mouseleave', cancel);
+  badge.addEventListener('touchstart', start, {passive:true});
+  badge.addEventListener('touchend', cancel);
+  badge.addEventListener('click', e=>e.stopPropagation()); // don't let a tap/release also cycle the item's state
+}
+function onNewBadgeLongPress(badge, itemId){
+  const result=addNewItemToTemplate(itemId);
+  if(result===null) return; // addNewItemToTemplate already showed an info modal
+  // Either way the item is now confirmed to be in the template, so it's no
+  // longer "new" — briefly confirm what happened, then re-render so the
+  // badge itself goes away (addNewItemToTemplate already cleared isNew).
+  badge.textContent = result ? '✓ Added to template' : 'Already in template';
+  badge.classList.toggle('added', result===true);
+  setTimeout(()=>{ renderChecklist(); applyFilter(); }, 900);
+}
+
+/* ---------- Trip Templates ---------- */
+function openManageTemplatesModal(){
+  const rows = types.map(t=>{
+    const count=t.items.filter(x=>!x.type).length;
+    return `
+    <div class="type-row" data-id="${t.id}">
+      <div class="type-row-name">${escapeHtml(t.name)}<span class="type-row-count">${count} items</span></div>
+      <div class="type-row-actions">
+        <button class="modal-btn" data-action="edit" title="Edit items">🧩</button>
+        <button class="modal-btn" data-action="dup" title="Duplicate">📋</button>
+        <button class="modal-btn" data-action="rename" title="Rename">✎</button>
+        <button class="modal-btn danger" data-action="del" title="Delete" ${types.length>1?'':'disabled style="opacity:.4;cursor:not-allowed"'}>✕</button>
+      </div>
+    </div>`;
+  }).join('');
+  const overlay=openModal(`
+    <h3>Manage Trip Templates</h3>
+    <p class="modal-msg">Trip Templates are reusable templates. Editing one only changes trips created from it afterwards — trips you've already started keep their own copy of the list.</p>
+    <div class="type-list">${rows || '<p class="modal-msg">No trip templates yet.</p>'}</div>
+    <div class="modal-actions" style="justify-content:flex-start">
+      <button class="modal-btn primary" id="mt-new">+ New Trip Template</button>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="mt-close">Close</button>
+    </div>`);
+  overlay.querySelectorAll('.type-row').forEach(row=>{
+    const id=row.dataset.id;
+    const template=types.find(t=>t.id===id);
+    if(!template) return;
+    row.querySelector('[data-action="edit"]').onclick=()=>{ closeModal(); enterTemplateEditMode(id); };
+    row.querySelector('[data-action="dup"]').onclick=()=>{ duplicateTemplate(template); closeModal(); openManageTemplatesModal(); };
+    row.querySelector('[data-action="rename"]').onclick=()=>{ closeModal(); openRenameTemplateModal(template); };
+    const delBtn=row.querySelector('[data-action="del"]');
+    if(types.length>1){
+      delBtn.onclick=()=>{
+        closeModal();
+        showConfirm(`Delete Trip Template "${escapeHtml(template.name)}"? Trips already created from it are unaffected.`, ()=>{
+          types=types.filter(x=>x.id!==id);
+          saveStore(); openManageTemplatesModal();
+        });
+      };
+    }
+  });
+  overlay.querySelector('#mt-new').onclick=()=>{ closeModal(); openNewTemplateModal(); };
+  overlay.querySelector('#mt-close').onclick=closeModal;
+}
+
+function openRenameTemplateModal(template){
+  const overlay=openModal(`
+    <h3>Rename Trip Template</h3>
+    <input type="text" id="rt-name" value="${escapeHtml(template.name)}" placeholder="Trip template name">
+    <div class="modal-actions">
+      <button class="modal-btn" id="rt-cancel">Cancel</button>
+      <button class="modal-btn primary" id="rt-save">Save</button>
+    </div>`);
+  const nameInput=overlay.querySelector('#rt-name');
+  setTimeout(()=>{ nameInput.focus(); nameInput.select(); },0);
+  overlay.querySelector('#rt-cancel').onclick=()=>{ closeModal(); openManageTemplatesModal(); };
+  overlay.querySelector('#rt-save').onclick=()=>{
+    const name=nameInput.value.trim();
+    if(!name) return;
+    template.name=name;
+    saveStore();
+    closeModal();
+    openManageTemplatesModal();
+  };
+  nameInput.addEventListener('keydown',e=>{ if(e.key==='Enter') overlay.querySelector('#rt-save').click(); });
+}
+
+function openNewTemplateModal(){
+  const copyOptions=types.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join('');
+  const overlay=openModal(`
+    <h3>New Trip Template</h3>
+    <input type="text" id="ntt-name" placeholder="e.g. Ski Trip, Business Trip" autocomplete="off">
+    <label class="field-label">Start from</label>
+    <select id="ntt-source">
+      <option value="__blank__">Blank (just one empty section)</option>
+      <option value="__builtin__">Built-in default checklist</option>
+      ${copyOptions}
+    </select>
+    <div class="modal-actions">
+      <button class="modal-btn" id="ntt-cancel">Cancel</button>
+      <button class="modal-btn primary" id="ntt-create">Create</button>
+    </div>`);
+  const nameInput=overlay.querySelector('#ntt-name');
+  setTimeout(()=>nameInput.focus(),0);
+  overlay.querySelector('#ntt-cancel').onclick=()=>{ closeModal(); openManageTemplatesModal(); };
+  overlay.querySelector('#ntt-create').onclick=()=>{
+    const name=nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    const source=overlay.querySelector('#ntt-source').value;
+    let items;
+    if(source==='__blank__'){
+      items=[{id:uid('sec'), type:'sec', label:'General'}];
+    } else if(source==='__builtin__'){
+      items=cloneItems(RAW_DEFAULT);
+    } else {
+      const src=types.find(t=>t.id===source);
+      items = src ? cloneItems(src.items) : [{id:uid('sec'), type:'sec', label:'General'}];
+    }
+    types.push({id:uid('type'), name, subtitle:'', items});
+    saveStore();
+    closeModal();
+    openManageTemplatesModal();
+  };
+  nameInput.addEventListener('keydown',e=>{ if(e.key==='Enter') overlay.querySelector('#ntt-create').click(); });
+}
+
+function duplicateTemplate(template){
+  types.push({id:uid('type'), name:template.name+' (copy)', subtitle:template.subtitle||'', items:cloneItems(template.items)});
+  saveStore();
+}
+
+function enterTemplateEditMode(id){
+  viewMode='template';
+  editingTemplateId=id;
+  editMode=true; // Trip Templates are always shown in the structural editor
+  collapsedSectionsOverride=null;
+  resetFiltersAndSearch();
+  renderAll();
+}
+function exitTemplateEditMode(){
+  viewMode='trip';
+  editingTemplateId=null;
+  editMode=false;
+  collapsedSectionsOverride=null;
+  resetFiltersAndSearch();
+  renderAll();
+}
+
+/* ---------- Undo ---------- */
+function pushUndo(){
+  const owner=currentItemsOwner();
+  if(!owner) return;
+  undoStack.push({kind:'items', ownerType:viewMode, ownerId:owner.id, items: JSON.parse(JSON.stringify(owner.items))});
+  if(undoStack.length>UNDO_LIMIT) undoStack.shift();
+  updateUndoButton();
+}
+function pushUndoTripDelete(trip, index){
+  undoStack.push({kind:'tripDelete', trip: JSON.parse(JSON.stringify(trip)), index});
+  if(undoStack.length>UNDO_LIMIT) undoStack.shift();
+  updateUndoButton();
+}
+function undo(){
+  if(!undoStack.length) return;
+  const snap=undoStack.pop();
+  if(snap.kind==='tripDelete'){
+    const idx=Math.min(snap.index, trips.length);
+    trips.splice(idx,0,snap.trip);
+    activeTripId=snap.trip.id;
+    viewMode='trip';
+  } else if(snap.kind==='items'){
+    if(snap.ownerType==='template'){
+      const t=types.find(x=>x.id===snap.ownerId);
+      if(t){ t.items=snap.items; viewMode='template'; editingTemplateId=t.id; editMode=true; }
+    } else {
+      const t=trips.find(x=>x.id===snap.ownerId);
+      if(t){ t.items=snap.items; activeTripId=t.id; viewMode='trip'; }
+    }
+  }
+  collapsedSectionsOverride=null;
+  resetFiltersAndSearch();
+  saveStore(); renderAll();
+  updateUndoButton();
+}
+function updateUndoButton(){
+  const btn=document.getElementById('undo-btn');
+  if(btn) btn.disabled = undoStack.length===0;
+}
+
+/* ---------- Rolling backups (every 5 minutes, per trip, only if changed) ---------- */
+function maybeBackupTrip(trip){
+  if(!Array.isArray(trip.backups)) trip.backups=[];
+  const last=trip.backups[trip.backups.length-1];
+  const currentJSON=JSON.stringify(trip.items);
+  if(last && JSON.stringify(last.items)===currentJSON) return false;
+  trip.backups.push({ts:Date.now(), items:JSON.parse(currentJSON)});
+  if(trip.backups.length>BACKUP_LIMIT) trip.backups.shift();
+  return true;
+}
+function runBackupSweep(){
+  let changed=false;
+  trips.forEach(t=>{ if(maybeBackupTrip(t)) changed=true; });
+  if(changed) saveStore();
+}
+
+/* ---------- Hero / stats ---------- */
+function updateHero(){
+  if(viewMode==='template'){
+    const t=activeTemplate();
+    const name=t?t.name:'Trip Template';
+    document.getElementById('hero-title').textContent = `🧩 Editing Trip Template: ${name}`;
+    document.title = `Editing ${name} — Trip Template`;
+    document.getElementById('hero-subtitle').textContent = 'This is a template — changes only affect trips created from it in future.';
+    renderBasedOnRow(null);
+    return;
+  }
+  const p=activeTrip();
+  document.getElementById('hero-title').textContent = `${destinationIcon(p.name)} ${p.name} — Packing Checklist`;
+  document.title = `${p.name} — Packing Checklist`;
+  const dateLabel=formatMonthYear(p.date);
+  const subtitleText=[p.subtitle, dateLabel].filter(Boolean).join(' · ');
+  const typeIcon=tripTypeIcon(p.subtitle);
+  document.getElementById('hero-subtitle').textContent = typeIcon ? `${typeIcon} ${subtitleText}` : subtitleText;
+  renderBasedOnRow(p);
+}
+
+// Shared Done/Ignoring/Still-to-do tally, used for both the page-level hero
+// stats and the per-section/sub-section header dot summaries.
+function computeStats(leafItems){
+  const total=leafItems.length;
+  const taking=leafItems.filter(it=>it.state===1).length;
+  const ignore=leafItems.filter(it=>it.state===2).length;
+  const left=total-taking-ignore;
+  return {total,taking,ignore,left};
+}
+
+// Inner content only — the persistent <span class="hd-stats" id="dots-{id}">
+// wrapper is created once in buildSectionEl and its innerHTML is refreshed
+// in place from here, so the element (and its id) survives every refresh.
+function statsDotsHtml(stats){
+  if(!stats.total) return '';
+  return `<span class="hd-dot" style="background:var(--taking)"></span>${stats.taking}`
+    +`<span class="hd-dot" style="background:var(--ignore)"></span>${stats.ignore}`
+    +`<span class="hd-dot" style="background:var(--text-tertiary)"></span>${stats.left}`;
+}
+
+// Template items never actually get checked/ignored (there's no state to
+// cycle in a template), so the Done/Ignoring/Still-to-do breakdown is always
+// the same meaningless split there — show a plain "(N)" item count next to
+// the title instead. Regular trip sections keep the dot breakdown, off to
+// the header's right edge as before.
+function updateHeaderStats(dotsEl, countEl, stats){
+  if(viewMode==='template'){
+    if(dotsEl) dotsEl.innerHTML='';
+    if(countEl) countEl.textContent = stats.total ? `(${stats.total})` : '';
+  } else {
+    if(dotsEl) dotsEl.innerHTML = statsDotsHtml(stats);
+    if(countEl) countEl.textContent = '';
+  }
+}
+
+function updateStats(){
+  const owner=currentItemsOwner();
+  const stats=computeStats(owner.items.filter(it=>!it.type));
+  document.getElementById('s-taking').textContent = stats.taking;
+  document.getElementById('s-ignore').textContent = stats.ignore;
+  document.getElementById('s-left').textContent = stats.left;
+  document.getElementById('prog-taking').style.width = (stats.total? stats.taking/stats.total*100 : 0)+'%';
+  document.getElementById('prog-ignore').style.width = (stats.total? stats.ignore/stats.total*100 : 0)+'%';
+}
+
+/* ---------- Search (debounced) ---------- */
+function matchesQuery(item){
+  return searchQuery && item.label.toLowerCase().includes(searchQuery);
+}
+function onSearchInput(value){
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer=setTimeout(()=>{
+    searchQuery=value.trim().toLowerCase();
+    const clearBtn=document.getElementById('search-clear');
+    if(clearBtn) clearBtn.classList.toggle('show', !!value);
+    applyFilter();
+  }, SEARCH_DEBOUNCE_MS);
+}
+function clearSearch(){
+  clearTimeout(searchDebounceTimer);
+  searchQuery='';
+  const input=document.getElementById('search-input');
+  if(input) input.value='';
+  const clearBtn=document.getElementById('search-clear');
+  if(clearBtn) clearBtn.classList.remove('show');
+  applyFilter(); // otherwise items/sections hidden by the search text stay hidden
+}
+
+/* ---------- Collapsible sections ---------- */
+// See the collapsedSectionsOverride declaration for the null/Map semantics:
+// a Map entry (true=forced open, false=forced closed) always wins; with no
+// entry, a section defaults to collapsed unless search has a live match in it.
+function isSectionOpen(id, hasMatch){
+  if(collapsedSectionsOverride && collapsedSectionsOverride.has(id)) return collapsedSectionsOverride.get(id);
+  return !!(searchQuery && hasMatch);
+}
+// Recomputed from live data rather than threaded through as a closure argument,
+// so a stale hasMatch captured at last render can never cause a click to toggle
+// the wrong direction after the search text has changed underneath it.
+function computeSectionHasMatch(secId){
+  if(!searchQuery) return false;
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===secId);
+  if(idx===-1) return false;
+  for(let j=idx+1;j<items.length;j++){
+    if(items[j].type==='sec') break;
+    if(items[j].type==='sub') continue;
+    if(matchesQuery(items[j])) return true;
+  }
+  return false;
+}
+// Not gated on editMode here — the pinned Important section (which has no
+// rename/move/delete affordances to protect) needs to stay toggleable even
+// while editing a structural section elsewhere. Regular sections still guard
+// their own header-row click at the call site instead (see buildSectionEl).
+function toggleSectionCollapsed(id){
+  const hasMatch=computeSectionHasMatch(id);
+  if(!collapsedSectionsOverride) collapsedSectionsOverride=new Map();
+  collapsedSectionsOverride.set(id, !isSectionOpen(id, hasMatch));
+  applyFilter(); // also refreshes the pinned Important section (see applyFilter)
+}
+
+/* ---------- Toggle / filter / reset ---------- */
+function toggle(id){
+  if(editMode) return;
+  const it=currentItemsOwner().items.find(x=>x.id===id);
+  if(!it) return;
+  it.state=(it.state+1)%3;
+  const el=document.getElementById('item-'+id);
+  if(el){ el.className='item '+(CLASSES[it.state]||'')+(it.important?' important':''); el.querySelector('.checkbox').textContent=ICONS[it.state]; }
+  applyFilter(); updateStats(); saveStore(); // applyFilter also rebuilds the pinned Important section
+}
+
+// Important is a separate "don't forget this" flag, independent of the
+// still-to-do/done/ignoring state cycle — it survives across all 3 states.
+function toggleImportant(id){
+  const it=currentItemsOwner().items.find(x=>x.id===id);
+  if(!it) return;
+  it.important=!it.important;
+  const el=document.getElementById('item-'+id);
+  if(el){
+    el.classList.toggle('important', !!it.important);
+    const flagBtn=el.querySelector('.flag-box');
+    if(flagBtn){
+      flagBtn.classList.toggle('active', !!it.important);
+      flagBtn.title = it.important ? 'Marked important — click to unmark' : 'Mark as important / do not forget';
+    }
+  }
+  applyFilter(); saveStore(); // applyFilter fully rebuilds the pinned Important section every time
+}
+
+// Filters are cumulative checkboxes, not radio buttons: any combination of
+// Still to do / Done / Ignoring can be active at once, and "New suggestions"
+// layers an extra isNew-only restriction on top of whichever states are shown.
+function resetFilters(){
+  filterStates = new Set(['none','taking','ignore']);
+  filterNewOnly = false;
+  filterImportantOnly = false;
+}
+// Also clears the search box — used only where the whole owner/context is changing
+// (switch trip, enter/exit template editor, undo, restore); the "All" pill and the
+// stat-row "Show all" shortcut deliberately leave search alone (see showAllFilters()).
+function resetFiltersAndSearch(){
+  resetFilters();
+  clearSearch();
+}
+function selectAllFilters(){
+  if(filterStates.size===3 && !filterNewOnly && !filterImportantOnly){
+    // Already fully "All" — clicking again clears the other 3 pills instead.
+    filterStates = new Set();
+  } else {
+    resetFilters();
+  }
+  updateFilterButtons();
+  applyFilter();
+}
+// The stat-row "Show all" shortcut — unlike selectAllFilters() (which collapses to
+// nothing when already fully selected), this always resets to the default, fully
+// visible filter. Preserves the active search text.
+function showAllFilters(){
+  resetFilters();
+  updateFilterButtons();
+  applyFilter();
+}
+function toggleStateFilter(key){
+  if(filterStates.has(key)) filterStates.delete(key); else filterStates.add(key);
+  updateFilterButtons();
+  applyFilter();
+}
+function toggleNewFilter(){
+  filterNewOnly=!filterNewOnly;
+  updateFilterButtons();
+  applyFilter();
+}
+function toggleImportantFilter(){
+  filterImportantOnly=!filterImportantOnly;
+  updateFilterButtons();
+  applyFilter();
+}
+function updateFilterButtons(){
+  const set=(sel,on)=>{ const b=document.querySelector(sel); if(b) b.classList.toggle('active', on); };
+  set('[data-filter="all"]', filterStates.size===3 && !filterNewOnly && !filterImportantOnly);
+  set('[data-filter="none"]', filterStates.has('none'));
+  set('[data-filter="taking"]', filterStates.has('taking'));
+  set('[data-filter="ignore"]', filterStates.has('ignore'));
+  set('[data-filter="new"]', filterNewOnly);
+  set('[data-filter="important"]', filterImportantOnly);
+
+  // Stat-row chips double as hide/show shortcuts for their own state: a hidden
+  // state's chip dims and gets a small crossed-eye suffix instead of moving/
+  // resizing anything, so the row doesn't jank as chips are toggled.
+  const chipStates=[['taking','s-taking'],['ignore','s-ignore'],['none','s-left']];
+  chipStates.forEach(([key])=>{
+    const chip=document.querySelector(`.stat-chip[data-state="${key}"]`);
+    if(!chip) return;
+    const hidden=!filterStates.has(key);
+    chip.classList.toggle('hidden-state', hidden);
+    let suffix=chip.querySelector('.hidden-suffix');
+    if(hidden && !suffix){
+      suffix=document.createElement('span');
+      suffix.className='hidden-suffix';
+      suffix.textContent=' 🚫';
+      chip.appendChild(suffix);
+    } else if(!hidden && suffix){
+      suffix.remove();
+    }
+  });
+  const showAllBtn=document.getElementById('stat-showall');
+  if(showAllBtn) showAllBtn.style.display = filterStates.size<3 ? '' : 'none';
+}
+
+function applyFilter(){
+  renderImportantSection(); // its own hasMatch/collapse state depends on the live search query too
+  const items=currentItemsOwner().items;
+  items.forEach(d=>{
+    if(d.type) return;
+    const el=document.getElementById('item-'+d.id);
+    if(!el) return;
+    const stateKey = d.state===1?'taking':d.state===2?'ignore':'none';
+    let show=filterStates.has(stateKey);
+    if(filterNewOnly) show = show && !!d.isNew;
+    if(filterImportantOnly) show = show && !!d.important;
+    if(searchQuery) show = show && matchesQuery(d);
+    el.classList.toggle('filter-hide',!show);
+  });
+  items.forEach((d,idx)=>{
+    if(!d.type) return;
+    // Headers always stay visible now — instead of hiding them when nothing
+    // under them passes the filter, we show a "nothing here" placeholder.
+    let hasAnyItems=false;
+    let hasVisible=false;
+    let hasSubHeads=false;
+    let hasMatch=false;
+    const leaves=[];
+    for(let j=idx+1;j<items.length;j++){
+      if(items[j].type==='sec') break;
+      if(items[j].type==='sub'){
+        if(d.type==='sub') break;
+        hasSubHeads=true; // a 'sec' with sub-sections defers its message to them
+        continue;
+      }
+      hasAnyItems=true;
+      leaves.push(items[j]);
+      const item=document.getElementById('item-'+items[j].id);
+      if(item && !item.classList.contains('filter-hide')) hasVisible=true;
+      if(matchesQuery(items[j])) hasMatch=true;
+    }
+    const emptyEl=document.getElementById('empty-'+d.id);
+    if(emptyEl){
+      const showMsg = d.type==='sec' && hasSubHeads ? false : (hasAnyItems && !hasVisible);
+      emptyEl.classList.toggle('show', showMsg);
+    }
+    const dotsEl=document.getElementById('dots-'+d.id);
+    const countEl=document.getElementById('count-'+d.id);
+    updateHeaderStats(dotsEl, countEl, computeStats(leaves));
+    if(d.type==='sec'){
+      const open=isSectionOpen(d.id, hasMatch);
+      const body=document.getElementById('body-'+d.id);
+      if(body) body.classList.toggle('collapsed', !open);
+      const chevron=document.getElementById('chev-'+d.id);
+      if(chevron){
+        chevron.innerHTML = chevronHTML(open);
+        chevron.onclick=(e)=>{ e.stopPropagation(); toggleSectionCollapsed(d.id); };
+      }
+    }
+  });
+}
+
+function resetAll(){
+  if(viewMode==='template') return;
+  pushUndo();
+  currentItemsOwner().items.forEach(it=>{ if(!it.type) it.state=0; });
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+/* ---------- Edit mode ---------- */
+function toggleEditMode(){
+  if(viewMode==='template') return; // Trip Templates are always in the structural editor
+  editMode=!editMode;
+  const btn=document.getElementById('edit-toggle-btn');
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? '✅ Done editing' : '✏️ Edit items';
+  renderChecklist();
+}
+
+function focusLabel(id, selectAll){
+  requestAnimationFrame(()=>{
+    const host = document.getElementById('item-'+id) || document.getElementById('hd-'+id);
+    if(!host) return;
+    const el = host.querySelector('.item-label, .hd-label');
+    if(!el) return;
+    el.focus();
+    if(selectAll){
+      const range=document.createRange(); range.selectNodeContents(el);
+      const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+    }
+  });
+}
+
+function onItemLabelBlur(id, el){
+  const owner=currentItemsOwner();
+  const items=owner.items;
+  const it=items.find(x=>x.id===id);
+  if(!it) return;
+  const text=el.textContent.replace(/\s+/g,' ').trim();
+  if(text===''){
+    pushUndo();
+    owner.items = items.filter(x=>x.id!==id);
+    saveStore(); renderChecklist(); updateStats(); applyFilter();
+    return;
+  }
+  if(text===it.label) return;
+  const wasBlank = it.label==='';
+  const norm=text.toLowerCase();
+  const dup=items.find(x=>!x.type && x.id!==id && x.label.trim().toLowerCase()===norm);
+  if(dup){
+    showConfirm(
+      `An item called "${escapeHtml(text)}" already exists in this list. Keep this one too?`,
+      ()=>{ it.label=text; saveStore(); },
+      {
+        confirmLabel:'Keep anyway', danger:false, title:'Possible duplicate item',
+        onCancel:()=>{
+          if(wasBlank) owner.items = owner.items.filter(x=>x.id!==id);
+          saveStore(); renderChecklist(); updateStats(); applyFilter();
+        }
+      }
+    );
+    return;
+  }
+  it.label=text; saveStore();
+}
+
+function onHeaderBlur(id, el){
+  const items=currentItemsOwner().items;
+  const it=items.find(x=>x.id===id);
+  if(!it) return;
+  const text=el.textContent.replace(/\s+/g,' ').trim();
+  if(text===''){ el.textContent=it.label; return; }
+  if(text!==it.label){
+    it.label=text; saveStore();
+    renderChecklist(); applyFilter();
+  }
+}
+
+function addItemAfter(headerId){
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===headerId);
+  if(idx===-1) return;
+  let insertAt=items.length;
+  for(let j=idx+1;j<items.length;j++){
+    if(items[j].type==='sec'||items[j].type==='sub'){ insertAt=j; break; }
+  }
+  const newItem={id:uid('i'), label:'', state:0, isNew:true};
+  items.splice(insertAt,0,newItem);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+  focusLabel(newItem.id,false);
+}
+
+function addSubsectionAfter(sectionHeaderId){
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===sectionHeaderId);
+  if(idx===-1) return;
+  let insertAt=items.length;
+  for(let j=idx+1;j<items.length;j++){
+    if(items[j].type==='sec'){ insertAt=j; break; }
+  }
+  const newSub={id:uid('sub'), type:'sub', label:'New sub-section'};
+  items.splice(insertAt,0,newSub);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+  focusLabel(newSub.id,true);
+}
+
+function addSection(){
+  const items=currentItemsOwner().items;
+  const newSec={id:uid('sec'), type:'sec', label:'New section'};
+  items.push(newSec);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+  focusLabel(newSec.id,true);
+}
+
+function deleteItem(id){
+  pushUndo();
+  const owner=currentItemsOwner();
+  owner.items = owner.items.filter(x=>x.id!==id);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+function confirmDeleteGroup(id, kind){
+  const items=currentItemsOwner().items;
+  const it=items.find(x=>x.id===id);
+  if(!it) return;
+  showConfirm(`Delete ${kind==='section'?'section':'sub-section'} "${escapeHtml(it.label)}" and all its items? You can Undo right after if you change your mind.`, ()=>{
+    deleteGroup(id);
+  });
+}
+
+function deleteGroup(id){
+  pushUndo();
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const type=items[idx].type;
+  let end=items.length;
+  for(let j=idx+1;j<items.length;j++){
+    if(type==='sec' && items[j].type==='sec'){ end=j; break; }
+    if(type==='sub' && (items[j].type==='sec'||items[j].type==='sub')){ end=j; break; }
+  }
+  items.splice(idx, end-idx);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+/* ---------- Reordering / moving ---------- */
+
+// Move a whole section (its header + everything under it) one slot up/down
+// relative to its sibling sections. dir is -1 (up) or +1 (down).
+function moveSection(id, dir){
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===id);
+  if(idx===-1 || items[idx].type!=='sec') return;
+  const secStarts=[];
+  items.forEach((it,i)=>{ if(it.type==='sec') secStarts.push(i); });
+  const myPos=secStarts.indexOf(idx);
+  const targetPos=myPos+dir;
+  if(targetPos<0 || targetPos>=secStarts.length) return;
+  const mySliceEnd = myPos+1<secStarts.length ? secStarts[myPos+1] : items.length;
+  const mySlice=items.splice(idx, mySliceEnd-idx);
+  if(dir<0){
+    items.splice(secStarts[targetPos], 0, ...mySlice);
+  } else {
+    const targetSliceEnd = targetPos+1<secStarts.length ? secStarts[targetPos+1] : items.length+mySlice.length;
+    items.splice(targetSliceEnd-mySlice.length, 0, ...mySlice);
+  }
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Move a sub-section (its header + everything under it) one slot up/down
+// among its sibling sub-sections, staying within the same parent section.
+function moveSubsection(id, dir){
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===id);
+  if(idx===-1 || items[idx].type!=='sub') return;
+  let secStart=idx;
+  for(let j=idx-1;j>=0;j--){ if(items[j].type==='sec'){ secStart=j; break; } }
+  let secEnd=items.length;
+  for(let j=idx+1;j<items.length;j++){ if(items[j].type==='sec'){ secEnd=j; break; } }
+  const subStarts=[];
+  for(let j=secStart+1;j<secEnd;j++){ if(items[j].type==='sub') subStarts.push(j); }
+  const myPos=subStarts.indexOf(idx);
+  const targetPos=myPos+dir;
+  if(targetPos<0 || targetPos>=subStarts.length) return;
+  const mySliceEnd = myPos+1<subStarts.length ? subStarts[myPos+1] : secEnd;
+  const mySlice=items.splice(idx, mySliceEnd-idx);
+  const shrunkSecEnd = secEnd-mySlice.length;
+  if(dir<0){
+    items.splice(subStarts[targetPos], 0, ...mySlice);
+  } else {
+    const targetSliceEnd = targetPos+1<subStarts.length ? subStarts[targetPos+1] : shrunkSecEnd+mySlice.length;
+    items.splice(targetSliceEnd-mySlice.length, 0, ...mySlice);
+  }
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Swap two sections by dragging one over the other in template mode
+function swapSectionOrder(fromId, toId){
+  const items=currentItemsOwner().items;
+  const fromIdx=items.findIndex(x=>x.id===fromId);
+  const toIdx=items.findIndex(x=>x.id===toId);
+  if(fromIdx===-1 || toIdx===-1 || items[fromIdx].type!=='sec' || items[toIdx].type!=='sec' || fromIdx===toIdx) return;
+
+  // Find all section starts to determine section boundaries
+  const secStarts=[];
+  items.forEach((it,i)=>{ if(it.type==='sec') secStarts.push(i); });
+  const fromPos=secStarts.indexOf(fromIdx);
+  const toPos=secStarts.indexOf(toIdx);
+  if(fromPos===-1 || toPos===-1) return;
+
+  // Calculate section ranges [start, end)
+  const fromStart=secStarts[fromPos];
+  const fromEnd=fromPos+1<secStarts.length ? secStarts[fromPos+1] : items.length;
+  const toStart=secStarts[toPos];
+  const toEnd=toPos+1<secStarts.length ? secStarts[toPos+1] : items.length;
+
+  // Determine which section comes first and which comes second
+  const [aStart, aEnd, bStart, bEnd] = fromStart<toStart
+    ? [fromStart, fromEnd, toStart, toEnd]
+    : [toStart, toEnd, fromStart, fromEnd];
+
+  // Build new array by swapping the sections in place:
+  // [before A] [B] [between A and B] [A] [after B]
+  const newItems=items.slice(0,aStart);
+  newItems.push(...items.slice(bStart,bEnd));
+  newItems.push(...items.slice(aEnd,bStart));
+  newItems.push(...items.slice(aStart,aEnd));
+  newItems.push(...items.slice(bEnd));
+
+  // Replace the items array in-place
+  items.length=0;
+  items.push(...newItems);
+
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Swap a single item with its immediate neighbour (up/down), stopping at
+// group boundaries (a header in that direction blocks the move).
+function moveItem(id, dir){
+  const items=currentItemsOwner().items;
+  const idx=items.findIndex(x=>x.id===id);
+  if(idx===-1) return;
+  const targetIdx=idx+dir;
+  if(targetIdx<0 || targetIdx>=items.length) return;
+  if(items[targetIdx].type) return;
+  const tmp=items[idx]; items[idx]=items[targetIdx]; items[targetIdx]=tmp;
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Let the user move a single item to a different section/sub-section.
+function openMoveItemModal(id){
+  const items=currentItemsOwner().items;
+  const it=items.find(x=>x.id===id);
+  if(!it) return;
+  const options=[];
+  items.forEach(d=>{
+    if(d.type==='sec') options.push(`<option value="${d.id}">${escapeHtml(SEC_ICONS[d.label]||DEFAULT_ICON)} ${escapeHtml(d.label)}</option>`);
+    else if(d.type==='sub') options.push(`<option value="${d.id}">↳ ${escapeHtml(d.label)}</option>`);
+  });
+  if(!options.length) return;
+  const overlay=openModal(`
+    <h3>Move "${escapeHtml(it.label)}"</h3>
+    <label class="field-label">Move to</label>
+    <select id="mv-target">${options.join('')}</select>
+    <div class="modal-actions">
+      <button class="modal-btn" id="mv-cancel">Cancel</button>
+      <button class="modal-btn primary" id="mv-move">Move</button>
+    </div>`);
+  overlay.querySelector('#mv-cancel').onclick=closeModal;
+  overlay.querySelector('#mv-move').onclick=()=>{
+    const targetId=overlay.querySelector('#mv-target').value;
+    closeModal();
+    moveItemToGroup(id, targetId);
+  };
+}
+
+function moveItemToGroup(itemId, headerId){
+  const owner=currentItemsOwner();
+  const items=owner.items;
+  const itemIdx=items.findIndex(x=>x.id===itemId);
+  const headerIdx=items.findIndex(x=>x.id===headerId);
+  if(itemIdx===-1 || headerIdx===-1 || itemIdx===headerIdx) return;
+  pushUndo();
+  const [moved]=items.splice(itemIdx,1);
+  const adjHeaderIdx = headerIdx>itemIdx ? headerIdx-1 : headerIdx;
+  let insertAt=items.length;
+  for(let j=adjHeaderIdx+1;j<items.length;j++){
+    if(items[j].type==='sec'||items[j].type==='sub'){ insertAt=j; break; }
+  }
+  items.splice(insertAt,0,moved);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+/* ---------- Render ---------- */
+
+// Build the full DOM for one section (its header + every sub-header/item that
+// belongs to it, in order), including the "+ Add item"/"+ Add sub-section" rows.
+function buildSectionEl(blockItems){
+  const secData = blockItems[0];
+  const h=document.createElement('div'); h.className='section';
+
+  const sh=document.createElement('div'); sh.className='sec-head'; sh.id='hd-'+secData.id;
+  if(viewMode==='template'){
+    const gripper=document.createElement('span'); gripper.className='hd-gripper'; gripper.textContent='⋮⋮'; gripper.draggable=true;
+    gripper.title='Drag to reorder section';
+    gripper.addEventListener('dragstart',e=>{
+      draggedSectionId=secData.id;
+      e.dataTransfer.effectAllowed='move';
+      // Create a custom drag image showing section icon + name
+      const dragImg=document.createElement('div');
+      dragImg.style.cssText='position:fixed;top:-9999px;left:-9999px;background:#2a5aa8;color:#fff;padding:8px 16px;border-radius:6px;font-weight:bold;font-size:14px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;gap:8px;opacity:0.9';
+      dragImg.textContent=`${SEC_ICONS[secData.label]||DEFAULT_ICON} ${secData.label}`;
+      document.body.appendChild(dragImg);
+      e.dataTransfer.setDragImage(dragImg, 0, 0);
+      setTimeout(()=>document.body.removeChild(dragImg), 0);
+    });
+    gripper.addEventListener('dragend',()=>{ draggedSectionId=null; });
+    sh.appendChild(gripper);
+  }
+  const icon=document.createElement('span'); icon.className='hd-icon'; icon.textContent=SEC_ICONS[secData.label]||DEFAULT_ICON;
+  const secLabel=document.createElement('span'); secLabel.className='hd-label'; secLabel.contentEditable=editMode?'true':'false';
+  secLabel.setAttribute('data-placeholder','Section name'); secLabel.textContent=secData.label;
+  secLabel.addEventListener('click',e=>{ if(editMode) e.stopPropagation(); });
+  secLabel.addEventListener('blur',()=>onHeaderBlur(secData.id,secLabel));
+  const secCount=document.createElement('span'); secCount.className='hd-count'; secCount.id='count-'+secData.id;
+  const secTitle=document.createElement('span'); secTitle.className='hd-title';
+  secTitle.appendChild(secLabel); secTitle.appendChild(secCount);
+  const secDots=document.createElement('span'); secDots.className='hd-stats'; secDots.id='dots-'+secData.id;
+  const secChevron=document.createElement('span'); secChevron.className='hd-chevron'; secChevron.id='chev-'+secData.id;
+  secChevron.onclick=(e)=>{ e.stopPropagation(); toggleSectionCollapsed(secData.id); };
+  const secActions=document.createElement('span'); secActions.className='hd-actions edit-only';
+  const secUpBtn=document.createElement('span'); secUpBtn.className='hd-btn'; secUpBtn.textContent='▲'; secUpBtn.title='Move section up';
+  secUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,-1); };
+  const secDownBtn=document.createElement('span'); secDownBtn.className='hd-btn'; secDownBtn.textContent='▼'; secDownBtn.title='Move section down';
+  secDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,1); };
+  const secRenameBtn=document.createElement('span'); secRenameBtn.className='hd-btn'; secRenameBtn.textContent='✎'; secRenameBtn.title='Rename section';
+  secRenameBtn.onclick=(e)=>{ e.stopPropagation(); focusLabel(secData.id,true); };
+  const addSubBtn=document.createElement('span'); addSubBtn.className='hd-btn'; addSubBtn.textContent='+'; addSubBtn.title='Add sub-section';
+  addSubBtn.onclick=(e)=>{ e.stopPropagation(); addSubsectionAfter(secData.id); };
+  const secDelBtn=document.createElement('span'); secDelBtn.className='hd-btn del'; secDelBtn.textContent='✕'; secDelBtn.title='Delete section';
+  secDelBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(secData.id,'section'); };
+  secActions.appendChild(secUpBtn); secActions.appendChild(secDownBtn); secActions.appendChild(secRenameBtn); secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
+  sh.appendChild(icon); sh.appendChild(secTitle); sh.appendChild(secDots); sh.appendChild(secActions); sh.appendChild(secChevron);
+  sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
+  if(viewMode==='template'){
+    sh.addEventListener('dragover',e=>{ if(draggedSectionId && draggedSectionId!==secData.id){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); } });
+    sh.addEventListener('dragleave',()=>{ sh.classList.remove('drag-over'); });
+    sh.addEventListener('drop',e=>{ e.preventDefault(); sh.classList.remove('drag-over'); if(draggedSectionId && draggedSectionId!==secData.id) swapSectionOrder(draggedSectionId, secData.id); });
+  }
+  h.appendChild(sh);
+
+  // Everything except the header row lives in a collapsible body wrapper, so
+  // the section title/dots/chevron stay visible even when collapsed.
+  const body=document.createElement('div'); body.className='sec-body'; body.id='body-'+secData.id;
+
+  const secEmptyMsg=document.createElement('div');
+  secEmptyMsg.className='empty-filter-msg'; secEmptyMsg.id='empty-'+secData.id;
+  secEmptyMsg.textContent='Nothing here matches the current filters.';
+  body.appendChild(secEmptyMsg);
+
+  let currentGroupHeaderId=secData.id; // items with no sub-header yet belong directly to the section
+  function flushGroup(){
+    const headerId=currentGroupHeaderId;
+    const row=document.createElement('div');
+    row.className='add-row edit-only';
+    row.textContent='+ Add item';
+    row.onclick=()=>addItemAfter(headerId);
+    body.appendChild(row);
+  }
+
+  const sectionAllLeaves=[]; // every leaf under this section, spanning sub-sections — drives the section-head dot summary
+  const subLeavesById={}; // per sub-section leaves, for that sub-head's own dot summary
+  let currentSubId=null, currentSubLeaves=null;
+  function finalizeSub(){ if(currentSubId) subLeavesById[currentSubId]=currentSubLeaves; }
+
+  for(let i=1;i<blockItems.length;i++){
+    const d=blockItems[i];
+    if(d.type==='sub'){
+      flushGroup();
+      finalizeSub();
+      currentSubId=d.id; currentSubLeaves=[];
+      const sh2=document.createElement('div'); sh2.className='sub-head'; sh2.id='hd-'+d.id;
+      const label=document.createElement('span'); label.className='hd-label'; label.contentEditable=editMode?'true':'false';
+      label.setAttribute('data-placeholder','Sub-section name'); label.textContent=d.label;
+      label.addEventListener('click',e=>{ if(editMode) e.stopPropagation(); });
+      label.addEventListener('blur',()=>onHeaderBlur(d.id,label));
+      const count=document.createElement('span'); count.className='hd-count'; count.id='count-'+d.id;
+      const title=document.createElement('span'); title.className='hd-title';
+      title.appendChild(label); title.appendChild(count);
+      const dots=document.createElement('span'); dots.className='hd-stats'; dots.id='dots-'+d.id;
+      const actions=document.createElement('span'); actions.className='hd-actions edit-only';
+      const subUpBtn=document.createElement('span'); subUpBtn.className='hd-btn'; subUpBtn.textContent='▲'; subUpBtn.title='Move sub-section up';
+      subUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,-1); };
+      const subDownBtn=document.createElement('span'); subDownBtn.className='hd-btn'; subDownBtn.textContent='▼'; subDownBtn.title='Move sub-section down';
+      subDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,1); };
+      const renameBtn=document.createElement('span'); renameBtn.className='hd-btn'; renameBtn.textContent='✎'; renameBtn.title='Rename sub-section';
+      renameBtn.onclick=(e)=>{ e.stopPropagation(); focusLabel(d.id,true); };
+      const delBtn=document.createElement('span'); delBtn.className='hd-btn del'; delBtn.textContent='✕'; delBtn.title='Delete sub-section';
+      delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
+      actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
+      sh2.appendChild(title); sh2.appendChild(dots); sh2.appendChild(actions);
+      body.appendChild(sh2);
+
+      const subEmptyMsg=document.createElement('div');
+      subEmptyMsg.className='empty-filter-msg'; subEmptyMsg.id='empty-'+d.id;
+      subEmptyMsg.textContent='Nothing here matches the current filters.';
+      body.appendChild(subEmptyMsg);
+
+      currentGroupHeaderId=d.id;
+    } else {
+      sectionAllLeaves.push(d);
+      if(currentSubId) currentSubLeaves.push(d);
+      const s=d.state||0;
+      const el=document.createElement('div');
+      el.className='item '+(CLASSES[s]||'')+(d.important?' important':''); el.id='item-'+d.id;
+      el.onclick=()=>toggle(d.id);
+      const cb=document.createElement('div'); cb.className='checkbox'; cb.textContent=ICONS[s];
+      const label=document.createElement('span'); label.className='item-label'; label.contentEditable=editMode?'true':'false';
+      label.setAttribute('data-placeholder','Item name'); label.textContent=d.label;
+      label.addEventListener('click',e=>{ if(editMode) e.stopPropagation(); });
+      label.addEventListener('blur',()=>onItemLabelBlur(d.id,label));
+      const labelWrap=document.createElement('span'); labelWrap.className='item-label-wrap';
+      labelWrap.appendChild(label);
+      if(d.isNew && viewMode==='trip'){
+        // "New" is a suggestion relative to the template it came from — the
+        // template itself has no such concept, so never show this there.
+        const b=document.createElement('span'); b.className='new-badge'; b.textContent='★ new'; labelWrap.appendChild(b);
+        attachNewBadgeLongPress(b, d.id);
+      }
+      const flagBtn=document.createElement('span'); flagBtn.className='flag-box'+(d.important?' active':''); flagBtn.textContent='🚩';
+      flagBtn.title = d.important ? 'Marked important — click to unmark' : 'Mark as important / do not forget';
+      flagBtn.onclick=(e)=>{ e.stopPropagation(); toggleImportant(d.id); };
+      if(viewMode==='template'){
+        // Templates have no checked state to cycle, so the left-hand slot
+        // shows the importance flag instead of a meaningless status checkbox.
+        el.appendChild(flagBtn); el.appendChild(labelWrap);
+      } else {
+        el.appendChild(cb); el.appendChild(labelWrap); el.appendChild(flagBtn);
+      }
+      const itemActions=document.createElement('span'); itemActions.className='item-actions edit-only';
+      const upBtn=document.createElement('span'); upBtn.className='item-btn'; upBtn.textContent='▲'; upBtn.title='Move up';
+      upBtn.onclick=(e)=>{ e.stopPropagation(); moveItem(d.id,-1); };
+      const downBtn=document.createElement('span'); downBtn.className='item-btn'; downBtn.textContent='▼'; downBtn.title='Move down';
+      downBtn.onclick=(e)=>{ e.stopPropagation(); moveItem(d.id,1); };
+      const moveBtn=document.createElement('span'); moveBtn.className='item-btn'; moveBtn.textContent='⇄'; moveBtn.title='Move to another section';
+      moveBtn.onclick=(e)=>{ e.stopPropagation(); openMoveItemModal(d.id); };
+      const del=document.createElement('span'); del.className='item-btn del'; del.textContent='✕'; del.title='Delete item';
+      del.onclick=(e)=>{ e.stopPropagation(); deleteItem(d.id); };
+      itemActions.appendChild(upBtn); itemActions.appendChild(downBtn); itemActions.appendChild(moveBtn); itemActions.appendChild(del);
+      el.appendChild(itemActions);
+      body.appendChild(el);
+    }
+  }
+  flushGroup();
+  finalizeSub();
+
+  const addSubRow=document.createElement('div');
+  addSubRow.className='add-row edit-only';
+  addSubRow.textContent='+ Add sub-section';
+  addSubRow.onclick=()=>addSubsectionAfter(secData.id);
+  body.appendChild(addSubRow);
+
+  h.appendChild(body);
+
+  // Compute initial dot summaries + collapsed state directly (rather than
+  // waiting for the applyFilter() pass that normally follows renderChecklist),
+  // so a bare renderChecklist() call still reflects search/collapse correctly.
+  const sectionHasMatch = !!(searchQuery && sectionAllLeaves.some(matchesQuery));
+  updateHeaderStats(secDots, secCount, computeStats(sectionAllLeaves));
+  Object.keys(subLeavesById).forEach(subId=>{
+    const dotsEl=body.querySelector('#dots-'+subId);
+    const countEl=body.querySelector('#count-'+subId);
+    updateHeaderStats(dotsEl, countEl, computeStats(subLeavesById[subId]));
+  });
+  const openNow=isSectionOpen(secData.id, sectionHasMatch);
+  body.classList.toggle('collapsed', !openNow);
+  secChevron.innerHTML = chevronHTML(openNow);
+
+  return h;
+}
+
+// Where an item lives, for the pinned Important section's caption — walks
+// backwards from the item to the nearest preceding sub-header (if any) and
+// section header, e.g. "Clothes / Outerwear" or just "Clothes".
+function findItemLocation(items, idx){
+  let sec=null, sub=null;
+  for(let j=idx-1;j>=0;j--){
+    if(items[j].type==='sub' && !sub) sub=items[j].label;
+    if(items[j].type==='sec'){ sec=items[j].label; break; }
+  }
+  return sub ? `${sec} / ${sub}` : (sec||'');
+}
+
+// A pinned, always-on-top "don't forget this" list — every important item
+// across the whole owner, regardless of its state/filter/search, each tagged
+// with where it actually lives. Collapsible like a normal section, but not
+// part of the two-column layout and not itself subject to search auto-expand.
+function renderImportantSection(){
+  const host=document.getElementById('important-host');
+  host.innerHTML='';
+  const owner=currentItemsOwner();
+  if(!owner) return;
+  const items=owner.items;
+  const importantEntries=[];
+  items.forEach((d,idx)=>{ if(!d.type && d.important) importantEntries.push({d,idx}); });
+  if(!importantEntries.length) return;
+
+  const h=document.createElement('div'); h.className='section important-section';
+  const sh=document.createElement('div'); sh.className='sec-head'; sh.id='hd-'+IMPORTANT_SECTION_KEY;
+  const icon=document.createElement('span'); icon.className='hd-icon'; icon.textContent='🚩';
+  const label=document.createElement('span'); label.className='hd-label'; label.textContent='Important';
+  const count=document.createElement('span'); count.className='hd-count'; count.id='count-'+IMPORTANT_SECTION_KEY;
+  const title=document.createElement('span'); title.className='hd-title';
+  title.appendChild(label); title.appendChild(count);
+  const dots=document.createElement('span'); dots.className='hd-stats'; dots.id='dots-'+IMPORTANT_SECTION_KEY;
+  const chevron=document.createElement('span'); chevron.className='hd-chevron'; chevron.id='chev-'+IMPORTANT_SECTION_KEY;
+  chevron.onclick=(e)=>{ e.stopPropagation(); toggleSectionCollapsed(IMPORTANT_SECTION_KEY); };
+  sh.appendChild(icon); sh.appendChild(title); sh.appendChild(dots); sh.appendChild(chevron);
+  sh.onclick=()=>toggleSectionCollapsed(IMPORTANT_SECTION_KEY);
+  h.appendChild(sh);
+
+  const body=document.createElement('div'); body.className='sec-body'; body.id='body-'+IMPORTANT_SECTION_KEY;
+  importantEntries.forEach(({d,idx})=>{
+    const s=d.state||0;
+    const el=document.createElement('div');
+    el.className='item '+(CLASSES[s]||'')+' important'; el.id='imp-item-'+d.id;
+    el.onclick=()=>toggle(d.id);
+    const cb=document.createElement('div'); cb.className='checkbox'; cb.textContent=ICONS[s];
+    const labelWrap=document.createElement('span'); labelWrap.className='item-label-wrap';
+    const labelSpan=document.createElement('span'); labelSpan.className='item-label'; labelSpan.textContent=d.label;
+    labelWrap.appendChild(labelSpan);
+    const caption=document.createElement('div'); caption.className='important-item-caption';
+    caption.textContent=findItemLocation(items, idx);
+    labelWrap.appendChild(caption);
+    const flagBtn=document.createElement('span'); flagBtn.className='flag-box active'; flagBtn.textContent='🚩';
+    flagBtn.title='Marked important — click to unmark';
+    flagBtn.onclick=(e)=>{ e.stopPropagation(); toggleImportant(d.id); };
+    if(viewMode==='template'){
+      el.appendChild(labelWrap); el.appendChild(flagBtn);
+    } else {
+      el.appendChild(cb); el.appendChild(labelWrap); el.appendChild(flagBtn);
+    }
+    body.appendChild(el);
+  });
+  h.appendChild(body);
+  host.appendChild(h);
+
+  updateHeaderStats(dots, count, computeStats(importantEntries.map(x=>x.d)));
+  const hasMatch=!!(searchQuery && importantEntries.some(x=>matchesQuery(x.d)));
+  const openNow=isSectionOpen(IMPORTANT_SECTION_KEY, hasMatch);
+  body.classList.toggle('collapsed', !openNow);
+  chevron.innerHTML = chevronHTML(openNow);
+}
+
+function renderChecklist(){
+  renderImportantSection();
+  const container=document.getElementById('cols');
+  container.innerHTML='';
+  const owner=currentItemsOwner();
+  if(!owner){ return; }
+  const items = owner.items;
+
+  // Group the flat item list into per-section blocks (a section header plus
+  // every sub-header/item that follows it, up to the next section header).
+  const blocks=[];
+  let current=null;
+  items.forEach(d=>{
+    if(d.type==='sec'){ current=[d]; blocks.push(current); }
+    else { if(!current){ current=[]; blocks.push(current); } current.push(d); }
+  });
+
+  // Distribute whole sections across the two columns, always adding the next
+  // section to whichever column currently has fewer items — so deleting or
+  // adding content rebalances both columns instead of leaving one lopsided.
+  const colDivs=[document.createElement('div'),document.createElement('div')];
+  const colWeights=[0,0];
+  blocks.forEach(block=>{
+    if(!block.length) return;
+    const weight = Math.max(block.filter(x=>!x.type).length, 1);
+    const target = colWeights[0]<=colWeights[1] ? 0 : 1;
+    colDivs[target].appendChild(buildSectionEl(block));
+    colWeights[target]+=weight;
+  });
+
+  colDivs.forEach(c=>{
+    const addSec=document.createElement('div');
+    addSec.className='add-section-btn edit-only';
+    addSec.textContent='+ Add Section';
+    addSec.onclick=()=>addSection();
+    c.appendChild(addSec);
+    container.appendChild(c);
+  });
+
+  document.body.classList.toggle('edit-mode', editMode);
+}
+
+function renderAll(){
+  document.body.classList.toggle('mode-type', viewMode==='template');
+  renderTripBar();
+  updateHero();
+  renderChecklist();
+  updateStats();
+  applyFilter();
+  updateFilterButtons();
+  updateUndoButton();
+}
+
+// ========== TEST SUITE FOR SECTION SWAP ==========
+function testSwapSectionOrder(){
+  console.group('🧪 Section Swap Tests');
+  let passed=0, failed=0;
+
+  function assert(condition, msg){
+    if(condition){ console.log('✓ '+msg); passed++; }
+    else{ console.error('✗ '+msg); failed++; }
+  }
+
+  // Test 1: Swap adjacent sections
+  function test1(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'i1',label:'A1'}, {id:'i2',label:'A2'},
+      {id:'s2',type:'sec',label:'B'}, {id:'i3',label:'B1'}, {id:'i4',label:'B2'},
+      {id:'s3',type:'sec',label:'C'}, {id:'i5',label:'C1'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    swapSectionOrder('s1','s2');
+    const labels=items.filter(x=>x.type==='sec').map(x=>x.label);
+    assert(labels[0]==='B' && labels[1]==='A' && labels[2]==='C', 'Swap adjacent A↔B');
+    assert(items[0].id==='s2' && items[3].id==='s1', 'Section headers in correct positions');
+    assert(items[1].id==='i3' && items[4].id==='i1', 'Items stay with their sections');
+  }
+
+  // Test 2: Swap non-adjacent sections
+  function test2(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'i1',label:'A1'},
+      {id:'s2',type:'sec',label:'B'}, {id:'i2',label:'B1'}, {id:'i3',label:'B2'},
+      {id:'s3',type:'sec',label:'C'}, {id:'i4',label:'C1'},
+      {id:'s4',type:'sec',label:'D'}, {id:'i5',label:'D1'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    swapSectionOrder('s1','s3');
+    const labels=items.filter(x=>x.type==='sec').map(x=>x.label);
+    assert(labels[0]==='C' && labels[1]==='B' && labels[2]==='A' && labels[3]==='D', 'Swap non-adjacent A↔C');
+    assert(items[0].id==='s3' && items[2].id==='s2' && items[5].id==='s1', 'Section positions correct');
+    assert(items[1].id==='i4' && items[6].id==='i1', 'Items grouped correctly with new sections');
+  }
+
+  // Test 3: Swap first and last
+  function test3(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'i1',label:'A1'}, {id:'i2',label:'A2'},
+      {id:'s2',type:'sec',label:'B'}, {id:'i3',label:'B1'},
+      {id:'s3',type:'sec',label:'C'}, {id:'i4',label:'C1'}, {id:'i5',label:'C2'}, {id:'i6',label:'C3'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    swapSectionOrder('s1','s3');
+    const labels=items.filter(x=>x.type==='sec').map(x=>x.label);
+    assert(labels[0]==='C' && labels[1]==='B' && labels[2]==='A', 'Swap first↔last');
+    assert(items[0].id==='s3' && items[4].id==='s2' && items[6].id==='s1', 'All sections repositioned');
+  }
+
+  // Test 4: With sub-sections
+  function test4(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'sub1',type:'sub',label:'A.1'}, {id:'i1',label:'A1.a'},
+      {id:'s2',type:'sec',label:'B'}, {id:'sub2',type:'sub',label:'B.1'}, {id:'i2',label:'B1.a'}, {id:'i3',label:'B1.b'},
+      {id:'s3',type:'sec',label:'C'}, {id:'i4',label:'C1'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    swapSectionOrder('s1','s2');
+    const secLabels=items.filter(x=>x.type==='sec').map(x=>x.label);
+    assert(secLabels[0]==='B' && secLabels[1]==='A', 'Sections swapped with subs intact');
+    assert(items[0].id==='s2' && items[1].id==='sub2' && items[2].id==='i2', 'Sub-section B stays under B');
+    assert(items[4].id==='s1' && items[5].id==='sub1' && items[6].id==='i1', 'Sub-section A stays under A');
+  }
+
+  // Test 5: Verify no orphaned items
+  function test5(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'i1',label:'A1'},
+      {id:'s2',type:'sec',label:'B'}, {id:'i2',label:'B1'}, {id:'i3',label:'B2'}, {id:'i4',label:'B3'},
+      {id:'s3',type:'sec',label:'C'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    const origIds=new Set(items.map(x=>x.id));
+    swapSectionOrder('s2','s3');
+    const newIds=new Set(items.map(x=>x.id));
+    assert(origIds.size===newIds.size && [...origIds].every(id=>newIds.has(id)), 'No items lost or gained');
+  }
+
+  // Test 6: Triple swap sequence
+  function test6(){
+    const items=[
+      {id:'s1',type:'sec',label:'A'}, {id:'i1',label:'a'},
+      {id:'s2',type:'sec',label:'B'}, {id:'i2',label:'b'},
+      {id:'s3',type:'sec',label:'C'}, {id:'i3',label:'c'},
+      {id:'s4',type:'sec',label:'D'}, {id:'i4',label:'d'}
+    ];
+    types=[{id:'t1',name:'Test',subtitle:'',items}];
+    activeTripId=null; editingTemplateId='t1'; viewMode='template';
+    swapSectionOrder('s1','s2'); // A↔B → B,A,C,D
+    swapSectionOrder('s1','s3'); // A↔C → B,C,A,D
+    swapSectionOrder('s4','s2'); // D↔B → D,C,A,B
+    const labels=items.filter(x=>x.type==='sec').map(x=>x.label);
+    assert(labels[0]==='D' && labels[1]==='C' && labels[2]==='A' && labels[3]==='B', 'Three swaps in sequence');
+  }
+
+  try{ test1(); } catch(e){ console.error('Test 1 failed:', e); failed++; }
+  try{ test2(); } catch(e){ console.error('Test 2 failed:', e); failed++; }
+  try{ test3(); } catch(e){ console.error('Test 3 failed:', e); failed++; }
+  try{ test4(); } catch(e){ console.error('Test 4 failed:', e); failed++; }
+  try{ test5(); } catch(e){ console.error('Test 5 failed:', e); failed++; }
+  try{ test6(); } catch(e){ console.error('Test 6 failed:', e); failed++; }
+
+  console.log(`\n📊 Results: ${passed} passed, ${failed} failed`);
+  console.groupEnd();
+  return failed===0;
+}
+
+// Run tests on init (comment out for production)
+// const testsOk = testSwapSectionOrder();
+
+loadTheme();
+loadStore();
+renderAll();
+runBackupSweep();
+setInterval(runBackupSweep, BACKUP_INTERVAL_MS);
+</script>
+</body>
+</html>
