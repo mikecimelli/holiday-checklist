@@ -199,7 +199,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 .section{
   background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
-  padding-bottom:6px;margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;
+  margin-bottom:16px;box-shadow:var(--shadow);overflow:hidden;
 }
 .sec-head{
   font-size:14px;font-weight:700;letter-spacing:.06em;color:#fff;
@@ -245,7 +245,8 @@ body.edit-mode .sec-head:hover{background:linear-gradient(120deg, var(--accent),
    protect, so it stays clickable/collapsible even while editing elsewhere. */
 body.edit-mode .important-section .sec-head{cursor:pointer}
 body.edit-mode .important-section .sec-head:hover{background:var(--important)}
-.sec-body.collapsed{display:none}
+.sec-body{padding-bottom:6px}
+.sec-body.collapsed{display:none;padding-bottom:0}
 
 .item{
   display:flex;align-items:center;gap:10px;padding:7px 16px;border-radius:0;
