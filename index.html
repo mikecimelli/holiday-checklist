@@ -166,7 +166,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .manage-types-link:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 
 .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:16px}
-.legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--card-border);padding:8px 14px;border-radius:12px;flex:1}
+.legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--card-border);padding:8px 14px;border-radius:12px;flex:1;position:relative}
+.legend.hidden{display:none}
+.legend-close{margin-left:auto;flex-shrink:0;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--text-tertiary);padding:2px 4px;border-radius:4px;transition:color .12s}
+.legend-close:hover{color:var(--text-primary)}
 .legend-prefix{font-size:12px;color:var(--text-tertiary);font-weight:500;margin-right:2px}
 .legend-arrow{font-size:12px;color:var(--text-tertiary);font-weight:700}
 .leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);font-weight:500}
@@ -399,6 +402,9 @@ body.mode-type .type-only{display:block}
           <button class="settings-item" onclick="triggerRestore(); toggleSettingsDropdown()">
             <span class="settings-icon">⬆️</span><span>Restore</span>
           </button>
+          <button class="settings-item" onclick="setLegendVisible(!legendVisible); toggleSettingsDropdown()">
+            <span class="settings-icon">💡</span><span id="legend-toggle-label">Hide instructions</span>
+          </button>
           <div class="settings-divider"></div>
           <button class="settings-item" onclick="openManageTemplatesModal(); toggleSettingsDropdown()">
             <span class="settings-icon">📋</span><span>Manage Trip Templates</span>
@@ -438,13 +444,14 @@ body.mode-type .type-only{display:block}
 
   <div class="trip-only">
     <div class="toolbar">
-      <div class="legend">
+      <div class="legend" id="legend-panel">
         <span class="legend-prefix">Tap to cycle:</span>
         <div class="leg"><div class="leg-box leg-none">?</div> Still to do</div>
         <span class="legend-arrow">→</span>
         <div class="leg"><div class="leg-box leg-taking">✓</div> Done</div>
         <span class="legend-arrow">→</span>
         <div class="leg"><div class="leg-box leg-ignore">✗</div> Ignoring</div>
+        <button class="legend-close" onclick="setLegendVisible(false)" title="Hide instructions">✕</button>
       </div>
       <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
     </div>
@@ -967,6 +974,26 @@ function setTheme(t){
   if(themeLabel) themeLabel.textContent = t==='dark' ? 'Light mode' : 'Dark mode';
   const themeIcon=document.querySelector('.settings-item .settings-icon');
   if(themeIcon) themeIcon.textContent = t==='dark' ? '☀️' : '🌙';
+}
+/* ---------- Legend visibility ---------- */
+let legendVisible = true;
+function loadLegendVisibility(){
+  try{
+    const v = localStorage.getItem('hol2-legend-visible');
+    legendVisible = v === null ? true : v === 'true';
+  }catch(e){ legendVisible = true; }
+  applyLegendVisibility();
+}
+function setLegendVisible(visible){
+  legendVisible = visible;
+  try{ localStorage.setItem('hol2-legend-visible', String(visible)); }catch(e){}
+  applyLegendVisibility();
+}
+function applyLegendVisibility(){
+  const panel = document.getElementById('legend-panel');
+  const label = document.getElementById('legend-toggle-label');
+  if(panel) panel.classList.toggle('hidden', !legendVisible);
+  if(label) label.textContent = legendVisible ? 'Hide instructions' : 'Show instructions';
 }
 function toggleTheme(){
   setTheme(document.body.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
@@ -2576,6 +2603,7 @@ function testSwapSectionOrder(){
 // const testsOk = testSwapSectionOrder();
 
 loadTheme();
+loadLegendVisibility();
 loadStore();
 renderAll();
 runBackupSweep();
