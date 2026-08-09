@@ -476,7 +476,7 @@ body.mode-type .type-only{display:block}
 
   <div class="type-only">
     <div class="type-banner">
-      <span>🧩 Editing a Trip Template — items here have no checked state; changes only affect trips created from it in future.</span>
+      <span>📋 Editing a Trip Template — items here have no checked state; changes only affect trips created from it in future.</span>
       <button class="btn" onclick="exitTemplateEditMode()">✅ Done — back to Trips</button>
     </div>
   </div>
@@ -1107,7 +1107,7 @@ function renderBasedOnRow(trip){
   if(!trip){ row.innerHTML=''; return; }
   if(trip.typeName){
     row.classList.remove('missing');
-    row.innerHTML = `🧩 Based on: <b>${escapeHtml(trip.typeName)}</b>`;
+    row.innerHTML = `📋 Based on: <b>${escapeHtml(trip.typeName)}</b>`;
   } else {
     row.classList.add('missing');
     row.textContent = 'Its original Trip Template no longer exists.';
@@ -1410,7 +1410,7 @@ function openManageTemplatesModal(){
     <div class="type-row" data-id="${t.id}">
       <div class="type-row-name">${escapeHtml(t.name)}<span class="type-row-count">${count} items</span></div>
       <div class="type-row-actions">
-        <button class="modal-btn" data-action="edit" title="Edit items">🧩</button>
+        <button class="modal-btn" data-action="edit" title="Edit items">📋</button>
         <button class="modal-btn" data-action="dup" title="Duplicate">📋</button>
         <button class="modal-btn" data-action="rename" title="Rename">✎</button>
         <button class="modal-btn danger" data-action="del" title="Delete" ${types.length>1?'':'disabled style="opacity:.4;cursor:not-allowed"'}>✕</button>
@@ -1593,7 +1593,7 @@ function updateHero(){
   if(viewMode==='template'){
     const t=activeTemplate();
     const name=t?t.name:'Trip Template';
-    document.getElementById('hero-title').textContent = `🧩 Editing Trip Template: ${name}`;
+    document.getElementById('hero-title').textContent = `📋 Editing Trip Template: ${name}`;
     document.title = `Editing ${name} — Trip Template`;
     document.getElementById('hero-subtitle').textContent = 'This is a template — changes only affect trips created from it in future.';
     renderBasedOnRow(null);
