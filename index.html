@@ -379,9 +379,36 @@ body.mode-type .type-only{display:block}
 .settings-divider{height:1px;background:var(--card-border);margin:10px 0}
 .version-back{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--accent);cursor:pointer;font-weight:600;margin-bottom:12px}
 .version-back:hover{text-decoration:underline}
+
+.update-banner{
+  position:fixed;left:16px;right:16px;bottom:16px;z-index:300;display:none;
+  align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;
+  background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+  box-shadow:var(--shadow);color:var(--text-primary)
+}
+.update-banner.show{display:flex}
+.update-copy{display:flex;flex-direction:column;gap:2px;min-width:0}
+.update-title{font-size:13px;font-weight:700}
+.update-text{font-size:12px;color:var(--text-secondary);line-height:1.35}
+.update-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+@media(max-width:640px){
+  .update-banner{left:12px;right:12px;bottom:12px;align-items:flex-start;flex-direction:column}
+  .update-actions{width:100%}
+  .update-actions .btn{flex:1;justify-content:center}
+}
 </style>
 </head>
 <body data-theme="light">
+<div class="update-banner" id="app-update-banner" role="status" aria-live="polite">
+  <div class="update-copy">
+    <div class="update-title">New version available</div>
+    <div class="update-text">This app has been updated. Refresh to load the latest checklist.</div>
+  </div>
+  <div class="update-actions">
+    <button class="btn" type="button" onclick="dismissAppUpdateBanner()">Later</button>
+    <button class="btn active" type="button" onclick="applyAppUpdate()">Refresh</button>
+  </div>
+</div>
 <div class="page">
 
   <div class="trip-only">
@@ -978,6 +1005,8 @@ function setTheme(t){
 }
 /* ---------- Legend visibility ---------- */
 let legendVisible = true;
+let pendingServiceWorker = null;
+let isRefreshingForUpdate = false;
 function loadLegendVisibility(){
   try{
     const v = localStorage.getItem('hol2-legend-visible');
@@ -995,6 +1024,51 @@ function applyLegendVisibility(){
   const label = document.getElementById('legend-toggle-label');
   if(panel) panel.classList.toggle('hidden', !legendVisible);
   if(label) label.textContent = legendVisible ? 'Hide instructions' : 'Show instructions';
+}
+function showAppUpdateBanner(){
+  const banner=document.getElementById('app-update-banner');
+  if(banner) banner.classList.add('show');
+}
+function dismissAppUpdateBanner(){
+  const banner=document.getElementById('app-update-banner');
+  if(banner) banner.classList.remove('show');
+}
+function applyAppUpdate(){
+  if(pendingServiceWorker){
+    pendingServiceWorker.postMessage({type:'SKIP_WAITING'});
+    return;
+  }
+  window.location.reload();
+}
+function wireServiceWorkerUpdates(){
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(isRefreshingForUpdate) return;
+    isRefreshingForUpdate=true;
+    dismissAppUpdateBanner();
+    window.location.reload();
+  });
+
+  window.addEventListener('load', async()=>{
+    try{
+      const registration=await navigator.serviceWorker.register('./sw.js');
+      if(registration.waiting){
+        pendingServiceWorker=registration.waiting;
+        showAppUpdateBanner();
+      }
+      registration.addEventListener('updatefound',()=>{
+        const newWorker=registration.installing;
+        if(!newWorker) return;
+        newWorker.addEventListener('statechange',()=>{
+          if(newWorker.state==='installed' && navigator.serviceWorker.controller){
+            pendingServiceWorker=newWorker;
+            showAppUpdateBanner();
+          }
+        });
+      });
+    }catch(e){
+      console.error('Service worker registration failed:', e);
+    }
+  });
 }
 function toggleTheme(){
   setTheme(document.body.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
@@ -2611,7 +2685,7 @@ runBackupSweep();
 setInterval(runBackupSweep, BACKUP_INTERVAL_MS);
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+  wireServiceWorkerUpdates();
 }
 </script>
 </body>
