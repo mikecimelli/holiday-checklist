@@ -1308,6 +1308,7 @@ function openTripSettingsModal(id, view){
     <label class="field-label">👥 Subtitle</label>
     <input type="text" id="ts-subtitle" list="subtitle-suggestions" value="${escapeHtml(t.subtitle||'')}" placeholder="Subtitle (e.g. Whole Family)">
     <div class="settings-divider"></div>
+    <button class="settings-row" id="ts-save-template"><span class="si">💾</span>Save as Template</button>
     <button class="settings-row" id="ts-reset"><span class="si">🔄</span>Reset all</button>
     <button class="settings-row" id="ts-restore"><span class="si">♻️</span>Restore missing from template</button>
     <button class="settings-row" id="ts-history"><span class="si">🕓</span>Version history</button>
@@ -1326,6 +1327,7 @@ function openTripSettingsModal(id, view){
     t.subtitle=overlay.querySelector('#ts-subtitle').value.trim();
     saveStore(); closeModal(); renderAll();
   };
+  overlay.querySelector('#ts-save-template').onclick=()=>{ closeModal(); openSaveTripAsTemplateModal(t); };
   overlay.querySelector('#ts-reset').onclick=()=>{
     closeModal();
     showConfirm(`Reset all items in "${escapeHtml(t.name)}" back to Still to do? Important flags are kept. You can Undo right after.`, resetAll, {confirmLabel:'Reset all', danger:true});
@@ -1345,6 +1347,34 @@ function openTripSettingsModal(id, view){
       });
     };
   }
+}
+
+// Save this trip's current sections/items (including important flags) as a
+// brand-new, independent Trip Template — the trip itself, and the template it
+// was originally based on (if any), are left untouched.
+function openSaveTripAsTemplateModal(trip){
+  const overlay=openModal(`
+    <h3>Save as Template</h3>
+    <p class="modal-msg">Creates a new Trip Template from this trip's current sections and items, including important flags. Checked/ignored state isn't carried over — templates always start fresh.</p>
+    <label class="field-label">Template name</label>
+    <input type="text" id="sat-name" value="${escapeHtml(trip.name)}" placeholder="e.g. Ski Trip, Business Trip" autocomplete="off">
+    <div class="modal-actions">
+      <button class="modal-btn" id="sat-cancel">Cancel</button>
+      <button class="modal-btn primary" id="sat-save">Save</button>
+    </div>`);
+  const nameInput=overlay.querySelector('#sat-name');
+  setTimeout(()=>{ nameInput.focus(); nameInput.select(); },0);
+  overlay.querySelector('#sat-cancel').onclick=()=>{ closeModal(); openTripSettingsModal(trip.id); };
+  overlay.querySelector('#sat-save').onclick=()=>{
+    const name=nameInput.value.trim();
+    if(!name){ nameInput.focus(); return; }
+    const template={id:uid('type'), name, subtitle:trip.subtitle||'', items:cloneItems(trip.items)};
+    types.push(template);
+    saveStore();
+    closeModal();
+    showInfo('Template saved', `“${escapeHtml(name)}” was added to your Trip Templates, with this trip's current sections, items and important flags. You can find it any time under ⚙️ → Manage Trip Templates.`);
+  };
+  nameInput.addEventListener('keydown',e=>{ if(e.key==='Enter') overlay.querySelector('#sat-save').click(); });
 }
 
 // Re-add any sections that exist in this trip's original Trip Template but are
