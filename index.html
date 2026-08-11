@@ -358,6 +358,14 @@ body.mode-type .type-only{display:block}
 [data-theme="dark"] .modal-card input[type=text],[data-theme="dark"] .modal-card input[type=month],[data-theme="dark"] .modal-card select{color-scheme:dark}
 .modal-card label.field-label{font-size:12.5px;color:var(--text-secondary);display:block;margin-bottom:6px}
 .modal-msg{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5}
+
+/* Destination search dropdown (New trip / Trip settings destination fields) */
+.dest-field{position:relative}
+.dest-suggest{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:var(--card);border:1px solid var(--card-border);border-radius:9px;box-shadow:var(--shadow);max-height:220px;overflow-y:auto;z-index:30}
+.dest-suggest-status{font-size:11px;color:var(--text-tertiary);padding:7px 11px;border-bottom:1px solid var(--card-border)}
+.dest-suggest-item{padding:8px 11px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text-primary)}
+.dest-suggest-item:hover,.dest-suggest-item.active{background:var(--accent-soft)}
+.dest-suggest-flag{font-size:15px;flex-shrink:0;width:20px;text-align:center}
 .modal-check-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-secondary);margin-bottom:16px}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px;flex-wrap:wrap}
 .modal-btn{padding:8px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--card-border);background:var(--bg);color:var(--text-secondary)}
@@ -843,6 +851,190 @@ function destinationIcon(destination){
   return '📍';
 }
 
+/* ---------- Destination search ----------
+   The Destination field (New trip, Trip settings) now does a real place
+   search: if the browser is online it queries OpenStreetMap's Nominatim
+   geocoder for actual matching places worldwide; if it's offline, or the
+   request fails for any reason, it falls back to fuzzy-matching the same
+   built-in DESTINATION_ICONS list used above (typo-tolerant, not just
+   substring). Either way, if nothing looks like a confident match, the user
+   is offered a short list of regions to pick from instead, so we can at
+   least get the flag right rather than silently guessing. Whatever gets
+   picked is stored as the trip's flagOverride so the flag no longer depends
+   on re-guessing from the (possibly edited) name text every render. */
+
+const REGIONS = [
+  {label:'Europe', flag:'🇪🇺'},
+  {label:'North America', flag:'🌎'},
+  {label:'South America', flag:'🌎'},
+  {label:'Africa', flag:'🌍'},
+  {label:'Middle East', flag:'🌍'},
+  {label:'Asia', flag:'🌏'},
+  {label:'Oceania / Australia', flag:'🌏'},
+];
+
+function countryCodeToFlag(code){
+  if(!code || !/^[a-zA-Z]{2}$/.test(code)) return '';
+  const upper=code.toUpperCase();
+  return String.fromCodePoint(...[...upper].map(c=>127397+c.charCodeAt(0)));
+}
+
+// Preferred flag for a trip: whatever the user actually picked in the
+// destination search (a real place or a region), falling back to the old
+// best-effort substring guess against the Destination text.
+function destinationFlag(trip){
+  if(trip && trip.flagOverride) return trip.flagOverride;
+  return destinationIcon(trip ? trip.name : '');
+}
+
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  if(!m) return n;
+  if(!n) return m;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){
+    const row=[i];
+    for(let j=1;j<=n;j++){
+      row[j]=a[i-1]===b[j-1] ? prev[j-1] : 1+Math.min(prev[j-1],prev[j],row[j-1]);
+    }
+    prev=row;
+  }
+  return prev[n];
+}
+
+// Offline fallback: fuzzy-match the query against the same city/country list
+// destinationIcon() uses, so a small typo (e.g. "pary") still surfaces Paris
+// rather than only exact substrings.
+function localDestinationSuggestions(query, limit){
+  limit=limit||6;
+  const q=query.trim().toLowerCase();
+  if(!q) return [];
+  const seen=new Set();
+  const scored=[];
+  for(const [key,flag] of DESTINATION_ICONS){
+    if(seen.has(key)) continue;
+    let score;
+    if(key.startsWith(q)) score=0;
+    else if(key.includes(q)) score=1;
+    else{
+      const dist=levenshtein(q, key);
+      const tolerance=Math.max(1, Math.ceil(Math.max(q.length,key.length)*0.4));
+      if(dist>tolerance) continue;
+      score=2+dist;
+    }
+    seen.add(key);
+    scored.push({key,flag,score});
+  }
+  scored.sort((a,b)=> a.score-b.score || a.key.length-b.key.length);
+  return scored.slice(0,limit).map(s=>({
+    label: s.key.replace(/\b\w/g, c=>c.toUpperCase()),
+    flag: s.flag
+  }));
+}
+
+// Online search via OpenStreetMap's free Nominatim geocoder. Returns null
+// (not []) on any network failure/timeout so the caller knows to fall back
+// to the offline list, vs. a genuine empty result set from the API itself.
+async function onlineDestinationSearch(query){
+  try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(), 4000);
+    const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q=${encodeURIComponent(query)}`;
+    const res=await fetch(url, {signal:controller.signal});
+    clearTimeout(timer);
+    if(!res.ok) return null;
+    const data=await res.json();
+    return data.map(place=>{
+      const addr=place.address||{};
+      const cc=addr.country_code;
+      const flag=cc ? (countryCodeToFlag(cc)||'📍') : '📍';
+      const bits=[addr.city||addr.town||addr.village||addr.county||addr.state, addr.country].filter(Boolean);
+      const label=bits.length ? bits.join(', ') : place.display_name.split(',').slice(0,2).join(',').trim();
+      return {label, flag};
+    });
+  }catch(e){
+    return null;
+  }
+}
+
+// Wires a destination <input> up to the search dropdown. `initialFlag` seeds
+// the "already resolved" state (e.g. a trip's existing flagOverride) so
+// reopening a dialog without touching the field doesn't lose it; any actual
+// typing/pasting by the user clears it until they pick something again.
+function setupDestinationSearch(inputEl, suggestEl, initialFlag){
+  inputEl._resolvedFlag = initialFlag || null;
+  let debounceTimer=null;
+  let activeIndex=-1;
+  let currentItems=[];
+
+  function hide(){ suggestEl.hidden=true; suggestEl.innerHTML=''; currentItems=[]; activeIndex=-1; }
+
+  function renderRegionFallback(statusText){
+    currentItems = REGIONS.map(r=>({label:r.label, flag:r.flag, isRegionPick:true}));
+    activeIndex=-1;
+    const html = `<div class="dest-suggest-status">${statusText}</div>` +
+      currentItems.map((it,i)=>`<div class="dest-suggest-item" data-i="${i}"><span class="dest-suggest-flag">${it.flag}</span><span>${escapeHtml(it.label)}</span></div>`).join('');
+    suggestEl.innerHTML=html;
+    suggestEl.hidden=false;
+    wireItems();
+  }
+
+  function renderItems(items, statusText){
+    if(!items.length){ renderRegionFallback('Not sure where this is — pick the closest region so we can at least get the flag right:'); return; }
+    currentItems=items;
+    activeIndex=-1;
+    const html = (statusText ? `<div class="dest-suggest-status">${statusText}</div>` : '') +
+      items.map((it,i)=>`<div class="dest-suggest-item" data-i="${i}"><span class="dest-suggest-flag">${it.flag||'📍'}</span><span>${escapeHtml(it.label)}</span></div>`).join('');
+    suggestEl.innerHTML=html;
+    suggestEl.hidden=false;
+    wireItems();
+  }
+
+  function wireItems(){
+    suggestEl.querySelectorAll('.dest-suggest-item').forEach(el=>{
+      el.addEventListener('mousedown', e=>{ e.preventDefault(); pick(+el.dataset.i); });
+    });
+  }
+
+  function updateActive(){
+    suggestEl.querySelectorAll('.dest-suggest-item').forEach((el,i)=>el.classList.toggle('active', i===activeIndex));
+  }
+
+  function pick(i){
+    const it=currentItems[i];
+    if(!it) return;
+    if(!it.isRegionPick) inputEl.value = it.label;
+    inputEl._resolvedFlag = it.flag || null;
+    hide();
+    inputEl.focus();
+  }
+
+  async function search(query){
+    if(navigator.onLine){
+      const online = await onlineDestinationSearch(query);
+      if(online !== null){ renderItems(online, online.length ? 'Matches from OpenStreetMap' : ''); return; }
+    }
+    const local = localDestinationSuggestions(query);
+    renderItems(local, navigator.onLine ? 'Search unavailable right now — showing local matches' : 'Offline — showing local matches');
+  }
+
+  inputEl.addEventListener('input', ()=>{
+    inputEl._resolvedFlag=null;
+    const q=inputEl.value.trim();
+    clearTimeout(debounceTimer);
+    if(q.length<2){ hide(); return; }
+    debounceTimer=setTimeout(()=>search(q), 300);
+  });
+  inputEl.addEventListener('keydown', e=>{
+    if(suggestEl.hidden) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); e.stopImmediatePropagation(); activeIndex=Math.min(activeIndex+1, currentItems.length-1); updateActive(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); e.stopImmediatePropagation(); activeIndex=Math.max(activeIndex-1,0); updateActive(); }
+    else if(e.key==='Enter' && activeIndex>=0){ e.preventDefault(); e.stopImmediatePropagation(); pick(activeIndex); }
+    else if(e.key==='Escape'){ e.stopPropagation(); hide(); }
+  });
+  inputEl.addEventListener('blur', ()=>{ setTimeout(hide, 150); });
+}
+
 // Best-effort trip-type icon guessed from keywords already present in the
 // Subtitle field (e.g. "Whole Family", "Just Me", "Business trip") — returns
 // '' (no icon) rather than a generic fallback, so plain/ambiguous subtitles
@@ -861,7 +1053,7 @@ function tripTypeIcon(subtitle){
 // identity is shown (trip tabs, hero header, Trip settings).
 function tripIcons(trip){
   if(!trip) return '';
-  const parts=[destinationIcon(trip.name)];
+  const parts=[destinationFlag(trip)];
   const t=tripTypeIcon(trip.subtitle);
   if(t) parts.push(t);
   return parts.join(' ');
@@ -1208,7 +1400,10 @@ function openNewTripModal(){
     <h3>New trip</h3>
     <label class="field-label">Trip template</label>
     <select id="nt-type">${options}</select>
-    <input type="text" id="nt-dest" placeholder="Destination (e.g. Rome)" autocomplete="off">
+    <div class="dest-field">
+      <input type="text" id="nt-dest" placeholder="Destination (e.g. Rome)" autocomplete="off">
+      <div class="dest-suggest" id="nt-dest-suggest" hidden></div>
+    </div>
     <label class="field-label">Date</label>
     <input type="month" id="nt-date" value="${currentMonthYear()}">
     <input type="text" id="nt-subtitle" list="subtitle-suggestions" placeholder="Subtitle (e.g. Whole Family) — optional" autocomplete="off">
@@ -1217,6 +1412,7 @@ function openNewTripModal(){
       <button class="modal-btn primary" id="nt-create">Create trip</button>
     </div>`);
   const destInput=overlay.querySelector('#nt-dest');
+  setupDestinationSearch(destInput, overlay.querySelector('#nt-dest-suggest'));
   setTimeout(()=>destInput.focus(),0);
   overlay.querySelector('#nt-cancel').onclick=closeModal;
   overlay.querySelector('#nt-create').onclick=()=>{
@@ -1225,18 +1421,19 @@ function openNewTripModal(){
     const typeId=overlay.querySelector('#nt-type').value;
     const date=overlay.querySelector('#nt-date').value || currentMonthYear();
     const subtitle=overlay.querySelector('#nt-subtitle').value.trim();
-    createTrip(typeId, dest, subtitle, date);
+    createTrip(typeId, dest, subtitle, date, destInput._resolvedFlag);
     closeModal();
   };
   destInput.addEventListener('keydown',e=>{ if(e.key==='Enter') overlay.querySelector('#nt-create').click(); });
 }
 
-function createTrip(typeId, destination, subtitle, date){
+function createTrip(typeId, destination, subtitle, date, flagOverride){
   const template=types.find(t=>t.id===typeId) || types[0];
   const trip={
     id:uid('trip'), name:destination, subtitle: subtitle || template.subtitle || '',
     date: date || currentMonthYear(),
     typeId:template.id, typeName:template.name, createdAt:Date.now(),
+    flagOverride: flagOverride || undefined,
     items: cloneItems(template.items), backups:[]
   };
   trips.push(trip);
@@ -1302,7 +1499,10 @@ function openTripSettingsModal(id, view){
     <h3>${tripIcons(t)} Trip settings</h3>
     <div class="settings-note"><span class="si">📄</span>${typeNote}</div>
     <label class="field-label">📍 Destination</label>
-    <input type="text" id="ts-name" value="${escapeHtml(t.name)}" placeholder="Destination">
+    <div class="dest-field">
+      <input type="text" id="ts-name" value="${escapeHtml(t.name)}" placeholder="Destination">
+      <div class="dest-suggest" id="ts-name-suggest" hidden></div>
+    </div>
     <label class="field-label">📅 Date</label>
     <input type="month" id="ts-date" value="${escapeHtml(t.date||currentMonthYear())}">
     <label class="field-label">👥 Subtitle</label>
@@ -1318,11 +1518,14 @@ function openTripSettingsModal(id, view){
       <button class="modal-btn" id="ts-cancel">Cancel</button>
       <button class="modal-btn primary" id="ts-save">Save</button>
     </div>`);
+  const nameInput=overlay.querySelector('#ts-name');
+  setupDestinationSearch(nameInput, overlay.querySelector('#ts-name-suggest'), t.flagOverride);
   overlay.querySelector('#ts-cancel').onclick=closeModal;
   overlay.querySelector('#ts-save').onclick=()=>{
-    const name=overlay.querySelector('#ts-name').value.trim();
+    const name=nameInput.value.trim();
     if(!name) return;
     t.name=name;
+    t.flagOverride=nameInput._resolvedFlag || undefined;
     t.date=overlay.querySelector('#ts-date').value || t.date;
     t.subtitle=overlay.querySelector('#ts-subtitle').value.trim();
     saveStore(); closeModal(); renderAll();
@@ -1704,7 +1907,7 @@ function updateHero(){
     return;
   }
   const p=activeTrip();
-  document.getElementById('hero-title').textContent = `${destinationIcon(p.name)} ${p.name} — Packing Checklist`;
+  document.getElementById('hero-title').textContent = `${destinationFlag(p)} ${p.name} — Packing Checklist`;
   document.title = `${p.name} — Packing Checklist`;
   const dateLabel=formatMonthYear(p.date);
   const subtitleText=[p.subtitle, dateLabel].filter(Boolean).join(' · ');
