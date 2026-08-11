@@ -154,7 +154,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .profile-tab:not(.active) .kebab:hover{background:var(--accent-soft);color:var(--accent)}
 .profile-add{border-style:dashed;color:var(--text-tertiary)}
 .profile-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.profile-add-btn{padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s;margin-left:auto}
+.profile-add-btn{width:34px;height:34px;border-radius:999px;font-size:18px;font-weight:600;line-height:1;background:var(--accent);color:#fff;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0}
 .profile-add-btn:hover{background:var(--accent-2);box-shadow:var(--shadow)}
 
 .manage-types-row2{margin:2px 0 16px;display:flex;justify-content:flex-end}
@@ -939,7 +939,7 @@ async function onlineDestinationSearch(query){
   try{
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(), 4000);
-    const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&q=${encodeURIComponent(query)}`;
+    const url=`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=16&q=${encodeURIComponent(query)}`;
     const res=await fetch(url, {signal:controller.signal});
     clearTimeout(timer);
     if(!res.ok) return null;
@@ -1334,6 +1334,12 @@ function groupIntoBlocks(list){
 function renderTripBar(){
   const bar=document.getElementById('profile-bar');
   bar.innerHTML='';
+  const addBtn=document.createElement('button');
+  addBtn.className='profile-add-btn';
+  addBtn.textContent='+';
+  addBtn.onclick=()=>openNewTripModal();
+  addBtn.title='Create a new trip';
+  bar.appendChild(addBtn);
   trips.forEach(t=>{
     const tab=document.createElement('div');
     tab.className='profile-tab'+(t.id===activeTripId?' active':'');
@@ -1357,12 +1363,6 @@ function renderTripBar(){
     tab.addEventListener('click',()=>switchTrip(t.id));
     bar.appendChild(tab);
   });
-  const addBtn=document.createElement('button');
-  addBtn.className='profile-add-btn';
-  addBtn.textContent='+ New trip';
-  addBtn.onclick=()=>openNewTripModal();
-  addBtn.title='Create a new trip';
-  bar.appendChild(addBtn);
 }
 
 // Which Trip Template the active trip was created from — shown in the hero,
