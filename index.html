@@ -84,7 +84,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);min-height:100%}
-body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text-primary);padding:32px 16px 64px;transition:background .25s}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--text-primary);padding:32px 16px 64px;transition:background .25s;overflow-x:hidden}
 
 .page{max-width:920px;margin:0 auto}
 
@@ -191,7 +191,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .btn-reset{color:var(--ignore);border-color:var(--ignore-soft);margin-left:auto}
 .btn-reset:hover{background:var(--ignore-soft);border-color:var(--ignore)}
 
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
 @media(max-width:640px){
   .cols{grid-template-columns:1fr}
   .btn-reset{margin-left:0}
@@ -204,9 +204,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sec-head{
   font-size:14px;font-weight:700;letter-spacing:.06em;color:#fff;
   background:linear-gradient(120deg, var(--accent), var(--accent-2));padding:4px 12px;
-  display:flex;align-items:center;gap:8px;
+  display:flex;flex-direction:column;gap:2px;
 }
 .sec-head .hd-label{text-transform:uppercase}
+/* Icon + title + actions + chevron sit on one row; the dot-stats summary is
+   a second row below (see .hd-stats) — keeps the top row from having to
+   compete with the stats for width, which is what made section headers so
+   wide once the edit-mode action buttons appeared. */
+.hd-top{display:flex;align-items:center;gap:8px;width:100%}
 .hd-icon{font-size:20px;flex-shrink:0}
 .hd-gripper{cursor:grab;font-size:12px;opacity:.5;margin-right:4px;flex-shrink:0;user-select:none}
 .hd-gripper:active{cursor:grabbing}
@@ -214,7 +219,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sub-head{
   font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
   background:var(--accent-soft);border-radius:8px;
-  margin:10px 10px 4px;padding:7px 10px;display:flex;align-items:center;gap:8px;
+  margin:10px 10px 4px;padding:7px 10px;display:flex;flex-direction:column;gap:2px;
 }
 /* Wraps the (contentEditable) title + a static, never-editable item-count
    badge — the wrapper carries the flex:1 that used to live on .hd-label
@@ -224,17 +229,21 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hd-count{font-size:11px;font-weight:700;opacity:.85;flex-shrink:0}
 .hd-actions{display:none;align-items:center;gap:6px;flex-shrink:0}
 .hd-btn{
-  width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;border-radius:7px;cursor:pointer;
+  width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;
   background:transparent;color:#fff;
 }
+.hd-btn.del{margin-left:8px}
 .hd-btn:hover{background:rgba(255,255,255,.24);transform:scale(1.06)}
 .sub-head .hd-btn{background:transparent;color:var(--accent)}
 .sub-head .hd-btn:hover{background:rgba(91,155,216,.16)}
 .sub-head .hd-btn.del{color:var(--ignore)}
 .sub-head .hd-btn.del:hover{background:var(--ignore-soft)}
 
-.hd-stats{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;flex-shrink:0}
+/* Second row: dot-stats summary, indented to align under the title text
+   rather than the icon (sub-headers have no icon, so no indent needed). */
+.hd-stats{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;flex-shrink:0;padding-left:28px}
+.sub-head .hd-stats{padding-left:0}
 .hd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .hd-chevron{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;border-radius:6px}
 .sec-head{cursor:pointer}
@@ -492,7 +501,7 @@ body.mode-type .type-only{display:block}
       <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
     </div>
 
-    <div class="edit-tip">✏️ Section and sub-section titles show small ✎ (rename), + (add sub-section) and ✕ (delete) buttons on the right — click ✎ to rename. For items, click the item's text directly to rename it, or use its ✕ to delete.</div>
+    <div class="edit-tip">✏️ Section and sub-section titles show ▲▼ (reorder), + (add sub-section) and ✕ (delete) buttons on the right — click the title text directly to rename it. For items, click the item's text directly to rename it, or use its ✕ to delete.</div>
 
     <div class="controls" style="display:flex;gap:8px;align-items:flex-start">
       <button class="btn active" data-filter="all" onclick="selectAllFilters()">All</button>
@@ -1942,12 +1951,13 @@ function statsDotsHtml(stats){
 // the title instead. Regular trip sections keep the dot breakdown, off to
 // the header's right edge as before.
 function updateHeaderStats(dotsEl, countEl, stats){
+  if(countEl) countEl.textContent = '';
   if(viewMode==='template'){
-    if(dotsEl) dotsEl.innerHTML='';
-    if(countEl) countEl.textContent = stats.total ? `(${stats.total})` : '';
+    // Same second-row slot as the trip-mode dot summary below — keeps the
+    // top row (title + edit actions + chevron) free of the count badge.
+    if(dotsEl) dotsEl.textContent = stats.total ? `${stats.total} items` : '';
   } else {
     if(dotsEl) dotsEl.innerHTML = statsDotsHtml(stats);
-    if(countEl) countEl.textContent = '';
   }
 }
 
@@ -2484,6 +2494,7 @@ function buildSectionEl(blockItems){
   const h=document.createElement('div'); h.className='section';
 
   const sh=document.createElement('div'); sh.className='sec-head'; sh.id='hd-'+secData.id;
+  const shTop=document.createElement('div'); shTop.className='hd-top';
   if(viewMode==='template'){
     const gripper=document.createElement('span'); gripper.className='hd-gripper'; gripper.textContent='⋮⋮'; gripper.draggable=true;
     gripper.title='Drag to reorder section';
@@ -2499,7 +2510,7 @@ function buildSectionEl(blockItems){
       setTimeout(()=>document.body.removeChild(dragImg), 0);
     });
     gripper.addEventListener('dragend',()=>{ draggedSectionId=null; });
-    sh.appendChild(gripper);
+    shTop.appendChild(gripper);
   }
   const icon=document.createElement('span'); icon.className='hd-icon'; icon.textContent=SEC_ICONS[secData.label]||DEFAULT_ICON;
   const secLabel=document.createElement('span'); secLabel.className='hd-label'; secLabel.contentEditable=editMode?'true':'false';
@@ -2517,14 +2528,13 @@ function buildSectionEl(blockItems){
   secUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,-1); };
   const secDownBtn=document.createElement('span'); secDownBtn.className='hd-btn'; secDownBtn.textContent='▼'; secDownBtn.title='Move section down';
   secDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,1); };
-  const secRenameBtn=document.createElement('span'); secRenameBtn.className='hd-btn'; secRenameBtn.textContent='✎'; secRenameBtn.title='Rename section';
-  secRenameBtn.onclick=(e)=>{ e.stopPropagation(); focusLabel(secData.id,true); };
   const addSubBtn=document.createElement('span'); addSubBtn.className='hd-btn'; addSubBtn.textContent='+'; addSubBtn.title='Add sub-section';
   addSubBtn.onclick=(e)=>{ e.stopPropagation(); addSubsectionAfter(secData.id); };
   const secDelBtn=document.createElement('span'); secDelBtn.className='hd-btn del'; secDelBtn.textContent='✕'; secDelBtn.title='Delete section';
   secDelBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(secData.id,'section'); };
-  secActions.appendChild(secUpBtn); secActions.appendChild(secDownBtn); secActions.appendChild(secRenameBtn); secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
-  sh.appendChild(icon); sh.appendChild(secTitle); sh.appendChild(secDots); sh.appendChild(secActions); sh.appendChild(secChevron);
+  secActions.appendChild(secUpBtn); secActions.appendChild(secDownBtn); secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
+  shTop.appendChild(icon); shTop.appendChild(secTitle); shTop.appendChild(secActions); shTop.appendChild(secChevron);
+  sh.appendChild(shTop); sh.appendChild(secDots);
   sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
   if(viewMode==='template'){
     sh.addEventListener('dragover',e=>{ if(draggedSectionId && draggedSectionId!==secData.id){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); } });
@@ -2577,12 +2587,12 @@ function buildSectionEl(blockItems){
       subUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,-1); };
       const subDownBtn=document.createElement('span'); subDownBtn.className='hd-btn'; subDownBtn.textContent='▼'; subDownBtn.title='Move sub-section down';
       subDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,1); };
-      const renameBtn=document.createElement('span'); renameBtn.className='hd-btn'; renameBtn.textContent='✎'; renameBtn.title='Rename sub-section';
-      renameBtn.onclick=(e)=>{ e.stopPropagation(); focusLabel(d.id,true); };
       const delBtn=document.createElement('span'); delBtn.className='hd-btn del'; delBtn.textContent='✕'; delBtn.title='Delete sub-section';
       delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
-      actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(renameBtn); actions.appendChild(delBtn);
-      sh2.appendChild(title); sh2.appendChild(dots); sh2.appendChild(actions);
+      actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(delBtn);
+      const sh2Top=document.createElement('div'); sh2Top.className='hd-top';
+      sh2Top.appendChild(title); sh2Top.appendChild(actions);
+      sh2.appendChild(sh2Top); sh2.appendChild(dots);
       body.appendChild(sh2);
 
       const subEmptyMsg=document.createElement('div');
@@ -2699,7 +2709,9 @@ function renderImportantSection(){
   const dots=document.createElement('span'); dots.className='hd-stats'; dots.id='dots-'+IMPORTANT_SECTION_KEY;
   const chevron=document.createElement('span'); chevron.className='hd-chevron'; chevron.id='chev-'+IMPORTANT_SECTION_KEY;
   chevron.onclick=(e)=>{ e.stopPropagation(); toggleSectionCollapsed(IMPORTANT_SECTION_KEY); };
-  sh.appendChild(icon); sh.appendChild(title); sh.appendChild(dots); sh.appendChild(chevron);
+  const shTop=document.createElement('div'); shTop.className='hd-top';
+  shTop.appendChild(icon); shTop.appendChild(title); shTop.appendChild(chevron);
+  sh.appendChild(shTop); sh.appendChild(dots);
   sh.onclick=()=>toggleSectionCollapsed(IMPORTANT_SECTION_KEY);
   h.appendChild(sh);
 
