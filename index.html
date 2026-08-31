@@ -204,7 +204,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sec-head{
   font-size:14px;font-weight:700;letter-spacing:.06em;color:#fff;
   background:linear-gradient(120deg, var(--accent), var(--accent-2));padding:4px 12px;
-  display:flex;flex-direction:column;gap:6px;
+  display:flex;flex-direction:column;gap:4px;
 }
 .sec-head .hd-label{text-transform:uppercase}
 /* Icon + title + actions + chevron sit on one row; the dot-stats summary is
@@ -216,6 +216,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hd-gripper{cursor:grab;font-size:12px;opacity:.5;margin-right:4px;flex-shrink:0;user-select:none}
 .hd-gripper:active{cursor:grabbing}
 .sec-head.drag-over{background:rgba(0,0,0,.22);border-radius:4px}
+.sub-head.drag-over{background:rgba(0,0,0,.12)}
 .sub-head{
   font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
   background:var(--accent-soft);border-radius:8px;
@@ -227,7 +228,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
    pushed to the far right like the dot-stats summary is. */
 .hd-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
 .hd-count{font-size:11px;font-weight:700;opacity:.85;flex-shrink:0}
-.hd-actions{display:none;align-items:center;gap:6px;flex-shrink:0}
+.hd-actions{display:none;align-items:center;gap:2px;flex-shrink:0}
 .hd-btn{
   width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
   font-size:15px;font-weight:700;border-radius:8px;cursor:pointer;
@@ -268,6 +269,11 @@ body.edit-mode .important-section .sec-head:hover{background:var(--important)}
 .item.ignore .item-label{text-decoration:line-through;color:var(--ignore)}
 .item.important{box-shadow:inset 3px 0 0 var(--important);background:var(--important-soft)}
 .item.important .item-label{font-weight:700}
+.item.drag-over-top{box-shadow:inset 0 2px 0 var(--accent)}
+.item.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--accent)}
+
+.item-gripper{cursor:grab;font-size:12px;opacity:.5;flex-shrink:0;user-select:none}
+.item-gripper:active{cursor:grabbing}
 
 .checkbox{
   width:20px;height:20px;border:1.5px solid var(--card-border);border-radius:7px;flex-shrink:0;
@@ -777,6 +783,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 // always wins over the search auto-expand default, and holds until the owner changes.
 let collapsedSectionsOverride = null;
 let draggedSectionId = null; // tracks which section is being dragged in template mode
+let draggedItemId = null; // tracks which item is being dragged via its gripper, in either view mode
 const IMPORTANT_SECTION_KEY = '__important__';
 let currentModal = null;
 let undoStack = [];
@@ -2431,16 +2438,42 @@ function swapSectionOrder(fromId, toId){
   saveStore(); renderChecklist(); updateStats(); applyFilter();
 }
 
-// Swap a single item with its immediate neighbour (up/down), stopping at
-// group boundaries (a header in that direction blocks the move).
+// Swap a single item with its immediate neighbour (up/down). Hitting a
+// header in that direction crosses into the adjacent group instead of
+// stopping: moving up out of the top of a group lands as the last item of
+// whatever group precedes it, moving down out of the bottom lands as the
+// first item of whatever group follows — unless there's no group on that
+// side at all (the very first/last section in the list).
 function moveItem(id, dir){
   const items=currentItemsOwner().items;
   const idx=items.findIndex(x=>x.id===id);
   if(idx===-1) return;
   const targetIdx=idx+dir;
   if(targetIdx<0 || targetIdx>=items.length) return;
-  if(items[targetIdx].type) return;
-  const tmp=items[idx]; items[idx]=items[targetIdx]; items[targetIdx]=tmp;
+  if(items[targetIdx].type){
+    if(dir<0 && targetIdx===0) return; // nothing precedes the very first section
+    const headerIdx=targetIdx;
+    const [moved]=items.splice(idx,1);
+    items.splice(headerIdx,0,moved);
+  } else {
+    const tmp=items[idx]; items[idx]=items[targetIdx]; items[targetIdx]=tmp;
+  }
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Move an item to sit directly before/after another item, wherever that
+// item lives — used by item-gripper drag-and-drop, which is how an item
+// crosses section/sub-section boundaries by dragging rather than by
+// repeatedly pressing the up/down buttons.
+function moveItemBeside(itemId, targetId, before){
+  const items=currentItemsOwner().items;
+  const itemIdx=items.findIndex(x=>x.id===itemId);
+  if(itemIdx===-1 || itemId===targetId) return;
+  const [moved]=items.splice(itemIdx,1);
+  let insertAt=items.findIndex(x=>x.id===targetId);
+  if(insertAt===-1){ items.splice(itemIdx,0,moved); return; } // target vanished — put it back
+  if(!before) insertAt+=1;
+  items.splice(insertAt,0,moved);
   saveStore(); renderChecklist(); updateStats(); applyFilter();
 }
 
@@ -2539,11 +2572,15 @@ function buildSectionEl(blockItems){
   shTop.appendChild(icon); shTop.appendChild(secTitle); shTop.appendChild(secActions); shTop.appendChild(secChevron);
   sh.appendChild(shTop); sh.appendChild(secDots);
   sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
-  if(viewMode==='template'){
-    sh.addEventListener('dragover',e=>{ if(draggedSectionId && draggedSectionId!==secData.id){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); } });
-    sh.addEventListener('dragleave',()=>{ sh.classList.remove('drag-over'); });
-    sh.addEventListener('drop',e=>{ e.preventDefault(); sh.classList.remove('drag-over'); if(draggedSectionId && draggedSectionId!==secData.id) swapSectionOrder(draggedSectionId, secData.id); });
-  }
+  sh.addEventListener('dragover',e=>{
+    if((draggedSectionId && draggedSectionId!==secData.id) || draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); }
+  });
+  sh.addEventListener('dragleave',()=>{ sh.classList.remove('drag-over'); });
+  sh.addEventListener('drop',e=>{
+    e.preventDefault(); sh.classList.remove('drag-over');
+    if(draggedSectionId && draggedSectionId!==secData.id) swapSectionOrder(draggedSectionId, secData.id);
+    else if(draggedItemId) moveItemToGroup(draggedItemId, secData.id);
+  });
   h.appendChild(sh);
 
   // Everything except the header row lives in a collapsible body wrapper, so
@@ -2594,6 +2631,9 @@ function buildSectionEl(blockItems){
       delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
       actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(delBtn);
       sh2.appendChild(title); sh2.appendChild(dots); sh2.appendChild(actions);
+      sh2.addEventListener('dragover',e=>{ if(draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh2.classList.add('drag-over'); } });
+      sh2.addEventListener('dragleave',()=>{ sh2.classList.remove('drag-over'); });
+      sh2.addEventListener('drop',e=>{ e.preventDefault(); sh2.classList.remove('drag-over'); if(draggedItemId) moveItemToGroup(draggedItemId, d.id); });
       body.appendChild(sh2);
 
       const subEmptyMsg=document.createElement('div');
@@ -2609,6 +2649,42 @@ function buildSectionEl(blockItems){
       const el=document.createElement('div');
       el.className='item '+(CLASSES[s]||'')+(d.important?' important':''); el.id='item-'+d.id;
       el.onclick=()=>toggle(d.id);
+      if(editMode){
+        // Drag handle for reordering an item, or dragging it into another
+        // section/sub-section entirely (dropping on a header, or near an
+        // item that already lives in the target group).
+        const gripper=document.createElement('span'); gripper.className='item-gripper'; gripper.textContent='⋮⋮'; gripper.draggable=true;
+        gripper.title='Drag to reorder, or drop on another section to move it there';
+        gripper.addEventListener('click',e=>e.stopPropagation());
+        gripper.addEventListener('dragstart',e=>{
+          e.stopPropagation();
+          draggedItemId=d.id;
+          e.dataTransfer.effectAllowed='move';
+          const dragImg=document.createElement('div');
+          dragImg.style.cssText='position:fixed;top:-9999px;left:-9999px;background:#2a5aa8;color:#fff;padding:6px 14px;border-radius:6px;font-weight:600;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);opacity:0.9';
+          dragImg.textContent=d.label||'Item';
+          document.body.appendChild(dragImg);
+          e.dataTransfer.setDragImage(dragImg, 0, 0);
+          setTimeout(()=>document.body.removeChild(dragImg), 0);
+        });
+        gripper.addEventListener('dragend',()=>{ draggedItemId=null; el.classList.remove('drag-over-top','drag-over-bottom'); });
+        el.appendChild(gripper);
+      }
+      el.addEventListener('dragover',e=>{
+        if(!draggedItemId || draggedItemId===d.id) return;
+        e.preventDefault(); e.dataTransfer.dropEffect='move';
+        const rect=el.getBoundingClientRect();
+        const before=(e.clientY-rect.top)<rect.height/2;
+        el.classList.toggle('drag-over-top', before);
+        el.classList.toggle('drag-over-bottom', !before);
+      });
+      el.addEventListener('dragleave',()=>{ el.classList.remove('drag-over-top','drag-over-bottom'); });
+      el.addEventListener('drop',e=>{
+        e.preventDefault();
+        const before=el.classList.contains('drag-over-top');
+        el.classList.remove('drag-over-top','drag-over-bottom');
+        if(draggedItemId && draggedItemId!==d.id) moveItemBeside(draggedItemId, d.id, before);
+      });
       const cb=document.createElement('div'); cb.className='checkbox'; cb.textContent=ICONS[s];
       const label=document.createElement('span'); label.className='item-label'; label.contentEditable=editMode?'true':'false';
       label.setAttribute('data-placeholder','Item name'); label.textContent=d.label;
