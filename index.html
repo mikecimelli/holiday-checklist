@@ -208,11 +208,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 .hd-label{min-width:0;flex:1;overflow-wrap:anywhere}
 .sec-head .hd-label{text-transform:uppercase}
-/* Icon + title + actions + chevron sit on one row; the dot-stats summary is
-   a second row below (see .hd-stats) — keeps the top row from having to
-   compete with the stats for width, which is what made section headers so
-   wide once the edit-mode action buttons appeared. */
+/* Icon + title + chevron sit on one row, with nothing else competing for
+   width — a long single-word title wraps rather than getting squeezed.
+   The move/add/delete action buttons live on the second row instead (see
+   .hd-bottom), alongside the dot-stats summary, since those buttons only
+   ever appear in edit mode and don't need to share space with the title. */
 .hd-top{display:flex;align-items:center;gap:8px;width:100%}
+.hd-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
 .hd-icon{font-size:20px;flex-shrink:0}
 .hd-gripper{cursor:grab;font-size:12px;opacity:.5;margin-right:4px;flex-shrink:0;user-select:none}
 .hd-gripper:active{cursor:grabbing}
@@ -2573,8 +2575,10 @@ function buildSectionEl(blockItems){
   const secDelBtn=document.createElement('span'); secDelBtn.className='hd-btn del'; secDelBtn.textContent='✕'; secDelBtn.title='Delete section';
   secDelBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(secData.id,'section'); };
   secActions.appendChild(secUpBtn); secActions.appendChild(secDownBtn); secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
-  shTop.appendChild(icon); shTop.appendChild(secTitle); shTop.appendChild(secActions); shTop.appendChild(secChevron);
-  sh.appendChild(shTop); sh.appendChild(secDots);
+  shTop.appendChild(icon); shTop.appendChild(secTitle); shTop.appendChild(secChevron);
+  const shBottom=document.createElement('div'); shBottom.className='hd-bottom';
+  shBottom.appendChild(secDots); shBottom.appendChild(secActions);
+  sh.appendChild(shTop); sh.appendChild(shBottom);
   sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
   sh.addEventListener('dragover',e=>{
     if((draggedSectionId && draggedSectionId!==secData.id) || draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); }
