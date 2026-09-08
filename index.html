@@ -220,6 +220,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hd-gripper:active{cursor:grabbing}
 .sec-head.drag-over{background:rgba(0,0,0,.22);border-radius:4px}
 .sub-head.drag-over{background:rgba(0,0,0,.12)}
+.sec-head.drag-over-top{box-shadow:inset 0 3px 0 #fff}
+.sec-head.drag-over-bottom{box-shadow:inset 0 -3px 0 #fff}
 .sub-head{
   font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
   background:var(--accent-soft);border-radius:8px;
@@ -511,7 +513,7 @@ body.mode-type .type-only{display:block}
       <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
     </div>
 
-    <div class="edit-tip" id="edit-tip">✏️ Section and sub-section titles show ▲▼ (reorder), + (add sub-section) and ✕ (delete) buttons on the right — click the title text directly to rename it. For items, click the item's text directly to rename it, or use its ✕ to delete.</div>
+    <div class="edit-tip" id="edit-tip">✏️ Drag a section by its ⋮⋮ handle to reorder it. Sub-section titles show ▲▼ (reorder) and section/sub-section titles show + (add sub-section) and ✕ (delete) buttons — click the title text directly to rename it. For items, drag by their ⋮⋮ handle, click the item's text directly to rename it, or use its ✕ to delete.</div>
 
     <div class="controls" style="display:flex;gap:8px;align-items:flex-start">
       <button class="btn active" data-filter="all" onclick="selectAllFilters()">All</button>
@@ -2355,28 +2357,6 @@ function deleteGroup(id){
 
 /* ---------- Reordering / moving ---------- */
 
-// Move a whole section (its header + everything under it) one slot up/down
-// relative to its sibling sections. dir is -1 (up) or +1 (down).
-function moveSection(id, dir){
-  const items=currentItemsOwner().items;
-  const idx=items.findIndex(x=>x.id===id);
-  if(idx===-1 || items[idx].type!=='sec') return;
-  const secStarts=[];
-  items.forEach((it,i)=>{ if(it.type==='sec') secStarts.push(i); });
-  const myPos=secStarts.indexOf(idx);
-  const targetPos=myPos+dir;
-  if(targetPos<0 || targetPos>=secStarts.length) return;
-  const mySliceEnd = myPos+1<secStarts.length ? secStarts[myPos+1] : items.length;
-  const mySlice=items.splice(idx, mySliceEnd-idx);
-  if(dir<0){
-    items.splice(secStarts[targetPos], 0, ...mySlice);
-  } else {
-    const targetSliceEnd = targetPos+1<secStarts.length ? secStarts[targetPos+1] : items.length+mySlice.length;
-    items.splice(targetSliceEnd-mySlice.length, 0, ...mySlice);
-  }
-  saveStore(); renderChecklist(); updateStats(); applyFilter();
-}
-
 // Move a sub-section (its header + everything under it) one slot up/down
 // among its sibling sub-sections, staying within the same parent section.
 function moveSubsection(id, dir){
@@ -2441,6 +2421,30 @@ function swapSectionOrder(fromId, toId){
   items.length=0;
   items.push(...newItems);
 
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
+// Move a whole section (header + everything under it) to sit directly
+// before/after another section — used by the section-gripper drag, which
+// replaced the old fixed single-step up/down buttons with a drag that can
+// place a section anywhere in one move.
+function moveSectionBeside(fromId, toId, before){
+  const items=currentItemsOwner().items;
+  const fromIdx=items.findIndex(x=>x.id===fromId);
+  if(fromIdx===-1 || items[fromIdx].type!=='sec' || fromId===toId) return;
+  const secStarts=[];
+  items.forEach((it,i)=>{ if(it.type==='sec') secStarts.push(i); });
+  const fromPos=secStarts.indexOf(fromIdx);
+  const fromEnd=fromPos+1<secStarts.length ? secStarts[fromPos+1] : items.length;
+  const mySlice=items.splice(fromIdx, fromEnd-fromIdx);
+  const toIdx=items.findIndex(x=>x.id===toId);
+  if(toIdx===-1){ items.splice(fromIdx,0,...mySlice); return; } // target vanished — put it back
+  const secStarts2=[];
+  items.forEach((it,i)=>{ if(it.type==='sec') secStarts2.push(i); });
+  const toPos=secStarts2.indexOf(toIdx);
+  const toEnd=toPos+1<secStarts2.length ? secStarts2[toPos+1] : items.length;
+  const insertAt=before ? toIdx : toEnd;
+  items.splice(insertAt,0,...mySlice);
   saveStore(); renderChecklist(); updateStats(); applyFilter();
 }
 
@@ -2537,9 +2541,9 @@ function buildSectionEl(blockItems){
 
   const sh=document.createElement('div'); sh.className='sec-head'; sh.id='hd-'+secData.id;
   const shTop=document.createElement('div'); shTop.className='hd-top';
-  if(viewMode==='template'){
+  if(editMode){
     const gripper=document.createElement('span'); gripper.className='hd-gripper'; gripper.textContent='⋮⋮'; gripper.draggable=true;
-    gripper.title='Drag to reorder section';
+    gripper.title='Drag to reorder section, or move it above/below another';
     gripper.addEventListener('dragstart',e=>{
       draggedSectionId=secData.id;
       e.dataTransfer.effectAllowed='move';
@@ -2566,28 +2570,34 @@ function buildSectionEl(blockItems){
   const secChevron=document.createElement('span'); secChevron.className='hd-chevron'; secChevron.id='chev-'+secData.id;
   secChevron.onclick=(e)=>{ e.stopPropagation(); toggleSectionCollapsed(secData.id); };
   const secActions=document.createElement('span'); secActions.className='hd-actions edit-only';
-  const secUpBtn=document.createElement('span'); secUpBtn.className='hd-btn'; secUpBtn.textContent='▲'; secUpBtn.title='Move section up';
-  secUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,-1); };
-  const secDownBtn=document.createElement('span'); secDownBtn.className='hd-btn'; secDownBtn.textContent='▼'; secDownBtn.title='Move section down';
-  secDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSection(secData.id,1); };
   const addSubBtn=document.createElement('span'); addSubBtn.className='hd-btn'; addSubBtn.textContent='+'; addSubBtn.title='Add sub-section';
   addSubBtn.onclick=(e)=>{ e.stopPropagation(); addSubsectionAfter(secData.id); };
   const secDelBtn=document.createElement('span'); secDelBtn.className='hd-btn del'; secDelBtn.textContent='✕'; secDelBtn.title='Delete section';
   secDelBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(secData.id,'section'); };
-  secActions.appendChild(secUpBtn); secActions.appendChild(secDownBtn); secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
+  secActions.appendChild(addSubBtn); secActions.appendChild(secDelBtn);
   shTop.appendChild(icon); shTop.appendChild(secTitle); shTop.appendChild(secChevron);
   const shBottom=document.createElement('div'); shBottom.className='hd-bottom';
   shBottom.appendChild(secDots); shBottom.appendChild(secActions);
   sh.appendChild(shTop); sh.appendChild(shBottom);
   sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
   sh.addEventListener('dragover',e=>{
-    if((draggedSectionId && draggedSectionId!==secData.id) || draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over'); }
+    if(draggedItemId){
+      e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over');
+    } else if(draggedSectionId && draggedSectionId!==secData.id){
+      e.preventDefault(); e.dataTransfer.dropEffect='move';
+      const rect=sh.getBoundingClientRect();
+      const before=(e.clientY-rect.top)<rect.height/2;
+      sh.classList.toggle('drag-over-top', before);
+      sh.classList.toggle('drag-over-bottom', !before);
+    }
   });
-  sh.addEventListener('dragleave',()=>{ sh.classList.remove('drag-over'); });
+  sh.addEventListener('dragleave',()=>{ sh.classList.remove('drag-over','drag-over-top','drag-over-bottom'); });
   sh.addEventListener('drop',e=>{
-    e.preventDefault(); sh.classList.remove('drag-over');
-    if(draggedSectionId && draggedSectionId!==secData.id) swapSectionOrder(draggedSectionId, secData.id);
-    else if(draggedItemId) moveItemToGroup(draggedItemId, secData.id);
+    e.preventDefault();
+    const before=sh.classList.contains('drag-over-top');
+    sh.classList.remove('drag-over','drag-over-top','drag-over-bottom');
+    if(draggedItemId) moveItemToGroup(draggedItemId, secData.id);
+    else if(draggedSectionId && draggedSectionId!==secData.id) moveSectionBeside(draggedSectionId, secData.id, before);
   });
   h.appendChild(sh);
 
