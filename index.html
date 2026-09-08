@@ -216,7 +216,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hd-top{display:flex;align-items:center;gap:8px;width:100%}
 .hd-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%}
 .hd-icon{font-size:20px;flex-shrink:0}
-.hd-gripper{cursor:grab;font-size:12px;opacity:.5;margin-right:4px;flex-shrink:0;user-select:none}
+.hd-gripper{cursor:grab;font-size:16px;opacity:.5;flex-shrink:0;user-select:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.hd-gripper:hover{background:rgba(255,255,255,.18)}
 .hd-gripper:active{cursor:grabbing}
 .sec-head.drag-over{background:rgba(0,0,0,.22);border-radius:4px}
 .sub-head.drag-over{background:rgba(0,0,0,.12)}
@@ -277,7 +278,8 @@ body.edit-mode .important-section .sec-head:hover{background:var(--important)}
 .item.drag-over-top{box-shadow:inset 0 2px 0 var(--accent)}
 .item.drag-over-bottom{box-shadow:inset 0 -2px 0 var(--accent)}
 
-.item-gripper{cursor:grab;font-size:12px;opacity:.5;flex-shrink:0;user-select:none}
+.item-gripper{cursor:grab;font-size:15px;opacity:.5;flex-shrink:0;user-select:none;width:24px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.item-gripper:hover{background:rgba(0,0,0,.06)}
 .item-gripper:active{cursor:grabbing}
 
 .checkbox{
@@ -2648,9 +2650,11 @@ function buildSectionEl(blockItems){
       const delBtn=document.createElement('span'); delBtn.className='hd-btn del'; delBtn.textContent='✕'; delBtn.title='Delete sub-section';
       delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
       actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(delBtn);
+      const sh2Top=document.createElement('div'); sh2Top.className='hd-top';
+      sh2Top.appendChild(title); sh2Top.appendChild(dots);
       const sh2Bottom=document.createElement('div'); sh2Bottom.className='hd-bottom';
-      sh2Bottom.appendChild(dots); sh2Bottom.appendChild(actions);
-      sh2.appendChild(title); sh2.appendChild(sh2Bottom);
+      sh2Bottom.appendChild(actions);
+      sh2.appendChild(sh2Top); sh2.appendChild(sh2Bottom);
       sh2.addEventListener('dragover',e=>{ if(draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh2.classList.add('drag-over'); } });
       sh2.addEventListener('dragleave',()=>{ sh2.classList.remove('drag-over'); });
       sh2.addEventListener('drop',e=>{ e.preventDefault(); sh2.classList.remove('drag-over'); if(draggedItemId) moveItemToGroup(draggedItemId, d.id); });
