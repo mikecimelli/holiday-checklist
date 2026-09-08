@@ -223,6 +223,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sub-head.drag-over{background:rgba(0,0,0,.12)}
 .sec-head.drag-over-top{box-shadow:inset 0 3px 0 #fff}
 .sec-head.drag-over-bottom{box-shadow:inset 0 -3px 0 #fff}
+.sub-head.drag-over-top{box-shadow:inset 0 3px 0 var(--accent)}
+.sub-head.drag-over-bottom{box-shadow:inset 0 -3px 0 var(--accent)}
 .sub-head{
   font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);
   background:var(--accent-soft);border-radius:8px;
@@ -246,6 +248,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .sub-head .hd-btn:hover{background:rgba(91,155,216,.16)}
 .sub-head .hd-btn.del{color:var(--ignore)}
 .sub-head .hd-btn.del:hover{background:var(--ignore-soft)}
+.sub-head .hd-gripper:hover{background:rgba(91,155,216,.16)}
 
 /* Second row: dot-stats summary, indented to align under the title text
    rather than the icon (sub-headers have no icon, so no indent needed). */
@@ -515,7 +518,7 @@ body.mode-type .type-only{display:block}
       <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
     </div>
 
-    <div class="edit-tip" id="edit-tip">✏️ Drag a section by its ⋮⋮ handle to reorder it. Sub-section titles show ▲▼ (reorder) and section/sub-section titles show + (add sub-section) and ✕ (delete) buttons — click the title text directly to rename it. For items, drag by their ⋮⋮ handle, click the item's text directly to rename it, or use its ✕ to delete.</div>
+    <div class="edit-tip" id="edit-tip">✏️ Drag a section or sub-section by its ⋮⋮ handle to reorder it or move it elsewhere. Sub-section titles also show ▲▼ (reorder), and section/sub-section titles show + (add sub-section) and ✕ (delete) buttons — click the title text directly to rename it. For items, drag by their ⋮⋮ handle, click the item's text directly to rename it, or use its ✕ to delete.</div>
 
     <div class="controls" style="display:flex;gap:8px;align-items:flex-start">
       <button class="btn active" data-filter="all" onclick="selectAllFilters()">All</button>
@@ -792,6 +795,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 let collapsedSectionsOverride = null;
 let draggedSectionId = null; // tracks which section is being dragged in template mode
 let draggedItemId = null; // tracks which item is being dragged via its gripper, in either view mode
+let draggedSubsectionId = null; // tracks which sub-section is being dragged via its gripper
 const IMPORTANT_SECTION_KEY = '__important__';
 let currentModal = null;
 let undoStack = [];
@@ -2450,6 +2454,24 @@ function moveSectionBeside(fromId, toId, before){
   saveStore(); renderChecklist(); updateStats(); applyFilter();
 }
 
+// Move a whole sub-section (header + its items) to sit directly before/after
+// another sub-section, or — when dropped on a section header — to become
+// that section's first sub-section. Used by the sub-section gripper drag,
+// which (unlike the old up/down buttons) can move a sub-section into a
+// different parent section entirely, not just reorder it within the same one.
+function moveSubsectionBeside(fromId, toId, before){
+  const items=currentItemsOwner().items;
+  const fromIdx=items.findIndex(x=>x.id===fromId);
+  if(fromIdx===-1 || items[fromIdx].type!=='sub' || fromId===toId) return;
+  const fromEnd=runEnd(items, fromIdx);
+  const mySlice=items.splice(fromIdx, fromEnd-fromIdx);
+  const toIdx=items.findIndex(x=>x.id===toId);
+  if(toIdx===-1){ items.splice(fromIdx,0,...mySlice); return; } // target vanished — put it back
+  const insertAt=before ? toIdx : runEnd(items, toIdx);
+  items.splice(insertAt,0,...mySlice);
+  saveStore(); renderChecklist(); updateStats(); applyFilter();
+}
+
 // Swap a single item with its immediate neighbour (up/down). Hitting a
 // header in that direction crosses into the adjacent group instead of
 // stopping: moving up out of the top of a group lands as the last item of
@@ -2583,7 +2605,7 @@ function buildSectionEl(blockItems){
   sh.appendChild(shTop); sh.appendChild(shBottom);
   sh.onclick=()=>{ if(!editMode) toggleSectionCollapsed(secData.id); };
   sh.addEventListener('dragover',e=>{
-    if(draggedItemId){
+    if(draggedItemId || draggedSubsectionId){
       e.preventDefault(); e.dataTransfer.dropEffect='move'; sh.classList.add('drag-over');
     } else if(draggedSectionId && draggedSectionId!==secData.id){
       e.preventDefault(); e.dataTransfer.dropEffect='move';
@@ -2599,6 +2621,7 @@ function buildSectionEl(blockItems){
     const before=sh.classList.contains('drag-over-top');
     sh.classList.remove('drag-over','drag-over-top','drag-over-bottom');
     if(draggedItemId) moveItemToGroup(draggedItemId, secData.id);
+    else if(draggedSubsectionId) moveSubsectionBeside(draggedSubsectionId, secData.id, false);
     else if(draggedSectionId && draggedSectionId!==secData.id) moveSectionBeside(draggedSectionId, secData.id, before);
   });
   h.appendChild(sh);
@@ -2651,13 +2674,46 @@ function buildSectionEl(blockItems){
       delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
       actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(delBtn);
       const sh2Top=document.createElement('div'); sh2Top.className='hd-top';
+      if(editMode){
+        const subGripper=document.createElement('span'); subGripper.className='hd-gripper'; subGripper.textContent='⋮⋮'; subGripper.draggable=true;
+        subGripper.title='Drag to reorder, or move it into another section';
+        subGripper.addEventListener('dragstart',e=>{
+          e.stopPropagation();
+          draggedSubsectionId=d.id;
+          e.dataTransfer.effectAllowed='move';
+          const dragImg=document.createElement('div');
+          dragImg.style.cssText='position:fixed;top:-9999px;left:-9999px;background:#2a5aa8;color:#fff;padding:6px 14px;border-radius:6px;font-weight:600;font-size:13px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);opacity:0.9';
+          dragImg.textContent=d.label||'Sub-section';
+          document.body.appendChild(dragImg);
+          e.dataTransfer.setDragImage(dragImg, 0, 0);
+          setTimeout(()=>document.body.removeChild(dragImg), 0);
+        });
+        subGripper.addEventListener('dragend',()=>{ draggedSubsectionId=null; sh2.classList.remove('drag-over-top','drag-over-bottom'); });
+        sh2Top.appendChild(subGripper);
+      }
       sh2Top.appendChild(title); sh2Top.appendChild(dots);
       const sh2Bottom=document.createElement('div'); sh2Bottom.className='hd-bottom';
       sh2Bottom.appendChild(actions);
       sh2.appendChild(sh2Top); sh2.appendChild(sh2Bottom);
-      sh2.addEventListener('dragover',e=>{ if(draggedItemId){ e.preventDefault(); e.dataTransfer.dropEffect='move'; sh2.classList.add('drag-over'); } });
-      sh2.addEventListener('dragleave',()=>{ sh2.classList.remove('drag-over'); });
-      sh2.addEventListener('drop',e=>{ e.preventDefault(); sh2.classList.remove('drag-over'); if(draggedItemId) moveItemToGroup(draggedItemId, d.id); });
+      sh2.addEventListener('dragover',e=>{
+        if(draggedItemId){
+          e.preventDefault(); e.dataTransfer.dropEffect='move'; sh2.classList.add('drag-over');
+        } else if(draggedSubsectionId && draggedSubsectionId!==d.id){
+          e.preventDefault(); e.dataTransfer.dropEffect='move';
+          const rect=sh2.getBoundingClientRect();
+          const before=(e.clientY-rect.top)<rect.height/2;
+          sh2.classList.toggle('drag-over-top', before);
+          sh2.classList.toggle('drag-over-bottom', !before);
+        }
+      });
+      sh2.addEventListener('dragleave',()=>{ sh2.classList.remove('drag-over','drag-over-top','drag-over-bottom'); });
+      sh2.addEventListener('drop',e=>{
+        e.preventDefault();
+        const before=sh2.classList.contains('drag-over-top');
+        sh2.classList.remove('drag-over','drag-over-top','drag-over-bottom');
+        if(draggedItemId) moveItemToGroup(draggedItemId, d.id);
+        else if(draggedSubsectionId && draggedSubsectionId!==d.id) moveSubsectionBeside(draggedSubsectionId, d.id, before);
+      });
       body.appendChild(sh2);
 
       const subEmptyMsg=document.createElement('div');
