@@ -137,8 +137,12 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .stat-chip{cursor:pointer;transition:opacity .15s;border:1px solid transparent}
 .stat-chip.hidden-state{opacity:.5}
 .stat-chip .hidden-suffix{font-weight:600;opacity:.85}
-.stat-row-showall{background:none;border:none;color:#fff;opacity:.85;font-size:12px;font-weight:600;cursor:pointer;text-decoration:underline;padding:6px 2px}
-.stat-row-showall:hover{opacity:1}
+/* The All/New/Important chips are plain toggles rather than counts — muted
+   until active, then flipped to a solid white pill so it's obvious which
+   extra filters are currently narrowing the list. */
+.stat-chip.chip-toggle{opacity:.75}
+.stat-chip.chip-toggle:hover{opacity:.95}
+.stat-chip.chip-toggle.active{background:#fff;border-color:#fff;color:var(--accent);opacity:1}
 
 .progress-track{width:100%;height:8px;background:rgba(255,255,255,.25);border-radius:999px;margin-top:14px;overflow:hidden;display:flex;position:relative;z-index:1}
 .prog-taking{height:100%;background:var(--taking);transition:width .35s ease}
@@ -166,8 +170,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .manage-types-link:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 
 .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:nowrap;margin-bottom:16px}
-.legend{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--accent-soft);border:1px solid var(--card-border);padding:8px 14px;border-radius:12px;flex:1;position:relative}
+.legend{display:flex;flex-direction:column;gap:6px;background:var(--accent-soft);border:1px solid var(--card-border);padding:8px 14px;border-radius:12px;flex:1;position:relative}
 .legend.hidden{display:none}
+.legend-top{display:flex;align-items:center;width:100%}
+.legend-items{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .legend-close{margin-left:auto;flex-shrink:0;background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:var(--text-tertiary);padding:2px 4px;border-radius:4px;transition:color .12s}
 .legend-close:hover{color:var(--text-primary)}
 .legend-prefix{font-size:12px;color:var(--text-tertiary);font-weight:500;margin-right:2px}
@@ -445,10 +451,13 @@ body.mode-type .type-only{display:block}
 </div>
 <div class="page">
 
-  <div class="trip-only">
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;width:100%">
-      <div class="profile-bar" id="profile-bar"></div>
-      <div class="settings-dropdown" style="margin-left:auto">
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;width:100%">
+    <div class="profile-bar trip-only" id="profile-bar"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn trip-only" id="edit-toggle-btn" onclick="toggleEditMode()">✏️ Edit items</button>
+      <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺ Undo</button>
+    </div>
+    <div class="settings-dropdown trip-only" style="margin-left:auto">
         <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="App settings">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8,10.45 L20.69,9.67 L20.69,14.33 L17.8,13.55 L17.2,15 L19.79,16.5 L16.5,19.79 L15,17.2 L13.55,17.8 L14.33,20.69 L9.67,20.69 L10.45,17.8 L9,17.2 L7.5,19.79 L4.21,16.5 L6.8,15 L6.2,13.55 L3.31,14.33 L3.31,9.67 L6.2,10.45 L6.8,9 L4.21,7.5 L7.5,4.21 L9,6.8 L10.45,6.2 L9.67,3.31 L14.33,3.31 L13.55,6.2 L15,6.8 L16.5,4.21 L19.79,7.5 L17.2,9 Z M9.5,9.5 H14.5 V14.5 H9.5 Z"/>
@@ -474,7 +483,6 @@ body.mode-type .type-only{display:block}
         </div>
       </div>
     </div>
-  </div>
 
   <div class="hero">
     <div class="hero-top">
@@ -485,17 +493,15 @@ body.mode-type .type-only{display:block}
           <span class="hero-based-on" id="hero-based-on"></span>
         </div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn" id="edit-toggle-btn" onclick="toggleEditMode()">✏️ Edit items</button>
-        <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺ Undo</button>
-      </div>
     </div>
     <div class="trip-only">
       <div class="stat-row">
         <div class="stat-chip chip-taking" data-state="taking" onclick="toggleStateFilter('taking')" title="Click to hide/show Done items"><b id="s-taking">0</b>Done</div>
         <div class="stat-chip chip-ignore" data-state="ignore" onclick="toggleStateFilter('ignore')" title="Click to hide/show Ignoring items"><b id="s-ignore">0</b>Ignoring</div>
         <div class="stat-chip chip-left" data-state="none" onclick="toggleStateFilter('none')" title="Click to hide/show Still-to-do items"><b id="s-left">0</b>Still to do</div>
-        <button class="stat-row-showall" id="stat-showall" style="display:none" onclick="showAllFilters()">Show all</button>
+        <div class="stat-chip chip-toggle active" data-filter="all" onclick="selectAllFilters()">All</div>
+        <div class="stat-chip chip-toggle" data-filter="new" onclick="toggleNewFilter()">★ New</div>
+        <div class="stat-chip chip-toggle" data-filter="important" onclick="toggleImportantFilter()">🚩 Important</div>
       </div>
       <div class="progress-track">
         <div class="prog-taking" id="prog-taking" style="width:0%"></div>
@@ -507,26 +513,24 @@ body.mode-type .type-only{display:block}
   <div class="trip-only">
     <div class="toolbar">
       <div class="legend" id="legend-panel">
-        <span class="legend-prefix">Tap to cycle:</span>
-        <div class="leg"><div class="leg-box leg-none">?</div> Still to do</div>
-        <span class="legend-arrow">→</span>
-        <div class="leg"><div class="leg-box leg-taking">✓</div> Done</div>
-        <span class="legend-arrow">→</span>
-        <div class="leg"><div class="leg-box leg-ignore">✗</div> Ignoring</div>
-        <button class="legend-close" onclick="setLegendVisible(false)" title="Hide instructions">✕</button>
+        <div class="legend-top">
+          <span class="legend-prefix">Tap to cycle:</span>
+          <button class="legend-close" onclick="setLegendVisible(false)" title="Hide instructions">✕</button>
+        </div>
+        <div class="legend-items">
+          <div class="leg"><div class="leg-box leg-none">?</div> Still to do</div>
+          <span class="legend-arrow">→</span>
+          <div class="leg"><div class="leg-box leg-taking">✓</div> Done</div>
+          <span class="legend-arrow">→</span>
+          <div class="leg"><div class="leg-box leg-ignore">✗</div> Ignoring</div>
+        </div>
       </div>
       <input type="file" id="restore-file-input" accept="application/json" style="display:none" onchange="handleRestoreFile(event)">
     </div>
 
-    <div class="edit-tip" id="edit-tip">✏️ Drag a section or sub-section by its ⋮⋮ handle to reorder it or move it elsewhere. Sub-section titles also show ▲▼ (reorder), and section/sub-section titles show + (add sub-section) and ✕ (delete) buttons — click the title text directly to rename it. For items, drag by their ⋮⋮ handle, click the item's text directly to rename it, or use its ✕ to delete.</div>
+    <div class="edit-tip" id="edit-tip">✏️ Drag a section or sub-section by its ⋮⋮ handle to reorder it or move it elsewhere. Section/sub-section titles show + (add sub-section) and ✕ (delete) buttons — click the title text directly to rename it. For items, drag by their ⋮⋮ handle, click the item's text directly to rename it, or use its ✕ to delete.</div>
 
     <div class="controls" style="display:flex;gap:8px;align-items:flex-start">
-      <button class="btn active" data-filter="all" onclick="selectAllFilters()">All</button>
-      <button class="btn active" data-filter="taking" onclick="toggleStateFilter('taking')">Done</button>
-      <button class="btn active" data-filter="ignore" onclick="toggleStateFilter('ignore')">Ignoring</button>
-      <button class="btn active" data-filter="none" onclick="toggleStateFilter('none')">Still to do</button>
-      <button class="btn" data-filter="new" onclick="toggleNewFilter()">★ New</button>
-      <button class="btn" data-filter="important" onclick="toggleImportantFilter()">🚩 Important</button>
       <div class="search-input-wrap" style="flex:1;min-width:200px">
         <span class="search-icon">🔎</span>
         <input type="text" class="search-input" id="search-input" placeholder="Search items…" oninput="onSearchInput(this.value)" autocomplete="off">
@@ -2090,8 +2094,8 @@ function resetFilters(){
   filterImportantOnly = false;
 }
 // Also clears the search box — used only where the whole owner/context is changing
-// (switch trip, enter/exit template editor, undo, restore); the "All" pill and the
-// stat-row "Show all" shortcut deliberately leave search alone (see showAllFilters()).
+// (switch trip, enter/exit template editor, undo, restore); the "All" pill
+// deliberately leaves search alone.
 function resetFiltersAndSearch(){
   resetFilters();
   clearSearch();
@@ -2103,14 +2107,6 @@ function selectAllFilters(){
   } else {
     resetFilters();
   }
-  updateFilterButtons();
-  applyFilter();
-}
-// The stat-row "Show all" shortcut — unlike selectAllFilters() (which collapses to
-// nothing when already fully selected), this always resets to the default, fully
-// visible filter. Preserves the active search text.
-function showAllFilters(){
-  resetFilters();
   updateFilterButtons();
   applyFilter();
 }
@@ -2132,9 +2128,6 @@ function toggleImportantFilter(){
 function updateFilterButtons(){
   const set=(sel,on)=>{ const b=document.querySelector(sel); if(b) b.classList.toggle('active', on); };
   set('[data-filter="all"]', filterStates.size===3 && !filterNewOnly && !filterImportantOnly);
-  set('[data-filter="none"]', filterStates.has('none'));
-  set('[data-filter="taking"]', filterStates.has('taking'));
-  set('[data-filter="ignore"]', filterStates.has('ignore'));
   set('[data-filter="new"]', filterNewOnly);
   set('[data-filter="important"]', filterImportantOnly);
 
@@ -2157,8 +2150,6 @@ function updateFilterButtons(){
       suffix.remove();
     }
   });
-  const showAllBtn=document.getElementById('stat-showall');
-  if(showAllBtn) showAllBtn.style.display = filterStates.size<3 ? '' : 'none';
 }
 
 function applyFilter(){
