@@ -454,8 +454,8 @@ body.mode-type .type-only{display:block}
   <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;width:100%">
     <div class="profile-bar trip-only" id="profile-bar"></div>
     <div style="display:flex;gap:8px">
-      <button class="btn trip-only" id="edit-toggle-btn" onclick="toggleEditMode()">✏️ Edit items</button>
-      <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺ Undo</button>
+      <button class="btn trip-only" id="edit-toggle-btn" onclick="toggleEditMode()" title="Edit items">✏️</button>
+      <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺</button>
     </div>
     <div class="settings-dropdown trip-only" style="margin-left:auto">
         <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="App settings">
@@ -2222,7 +2222,8 @@ function toggleEditMode(){
   editMode=!editMode;
   const btn=document.getElementById('edit-toggle-btn');
   btn.classList.toggle('active', editMode);
-  btn.textContent = editMode ? '✅ Done editing' : '✏️ Edit items';
+  btn.textContent = editMode ? '✅' : '✏️';
+  btn.title = editMode ? 'Done editing' : 'Edit items';
   renderChecklist();
 }
 
