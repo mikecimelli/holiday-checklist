@@ -499,7 +499,6 @@ body.mode-type .type-only{display:block}
         <div class="stat-chip chip-taking" data-state="taking" onclick="toggleStateFilter('taking')" title="Click to hide/show Done items"><b id="s-taking">0</b>Done</div>
         <div class="stat-chip chip-ignore" data-state="ignore" onclick="toggleStateFilter('ignore')" title="Click to hide/show Ignoring items"><b id="s-ignore">0</b>Ignoring</div>
         <div class="stat-chip chip-left" data-state="none" onclick="toggleStateFilter('none')" title="Click to hide/show Still-to-do items"><b id="s-left">0</b>Still to do</div>
-        <div class="stat-chip chip-toggle active" data-filter="all" onclick="selectAllFilters()">All</div>
         <div class="stat-chip chip-toggle" data-filter="new" onclick="toggleNewFilter()">★ New</div>
         <div class="stat-chip chip-toggle" data-filter="important" onclick="toggleImportantFilter()">🚩 Important</div>
       </div>
@@ -2093,22 +2092,11 @@ function resetFilters(){
   filterNewOnly = false;
   filterImportantOnly = false;
 }
-// Also clears the search box — used only where the whole owner/context is changing
-// (switch trip, enter/exit template editor, undo, restore); the "All" pill
-// deliberately leaves search alone.
+// Also clears the search box — used only where the whole owner/context is
+// changing (switch trip, enter/exit template editor, undo, restore).
 function resetFiltersAndSearch(){
   resetFilters();
   clearSearch();
-}
-function selectAllFilters(){
-  if(filterStates.size===3 && !filterNewOnly && !filterImportantOnly){
-    // Already fully "All" — clicking again clears the other 3 pills instead.
-    filterStates = new Set();
-  } else {
-    resetFilters();
-  }
-  updateFilterButtons();
-  applyFilter();
 }
 function toggleStateFilter(key){
   if(filterStates.has(key)) filterStates.delete(key); else filterStates.add(key);
@@ -2127,7 +2115,6 @@ function toggleImportantFilter(){
 }
 function updateFilterButtons(){
   const set=(sel,on)=>{ const b=document.querySelector(sel); if(b) b.classList.toggle('active', on); };
-  set('[data-filter="all"]', filterStates.size===3 && !filterNewOnly && !filterImportantOnly);
   set('[data-filter="new"]', filterNewOnly);
   set('[data-filter="important"]', filterImportantOnly);
 
