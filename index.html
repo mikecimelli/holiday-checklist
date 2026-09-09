@@ -2333,33 +2333,6 @@ function deleteGroup(id){
 
 /* ---------- Reordering / moving ---------- */
 
-// Move a sub-section (its header + everything under it) one slot up/down
-// among its sibling sub-sections, staying within the same parent section.
-function moveSubsection(id, dir){
-  const items=currentItemsOwner().items;
-  const idx=items.findIndex(x=>x.id===id);
-  if(idx===-1 || items[idx].type!=='sub') return;
-  let secStart=idx;
-  for(let j=idx-1;j>=0;j--){ if(items[j].type==='sec'){ secStart=j; break; } }
-  let secEnd=items.length;
-  for(let j=idx+1;j<items.length;j++){ if(items[j].type==='sec'){ secEnd=j; break; } }
-  const subStarts=[];
-  for(let j=secStart+1;j<secEnd;j++){ if(items[j].type==='sub') subStarts.push(j); }
-  const myPos=subStarts.indexOf(idx);
-  const targetPos=myPos+dir;
-  if(targetPos<0 || targetPos>=subStarts.length) return;
-  const mySliceEnd = myPos+1<subStarts.length ? subStarts[myPos+1] : secEnd;
-  const mySlice=items.splice(idx, mySliceEnd-idx);
-  const shrunkSecEnd = secEnd-mySlice.length;
-  if(dir<0){
-    items.splice(subStarts[targetPos], 0, ...mySlice);
-  } else {
-    const targetSliceEnd = targetPos+1<subStarts.length ? subStarts[targetPos+1] : shrunkSecEnd+mySlice.length;
-    items.splice(targetSliceEnd-mySlice.length, 0, ...mySlice);
-  }
-  saveStore(); renderChecklist(); updateStats(); applyFilter();
-}
-
 // Swap two sections by dragging one over the other in template mode
 function swapSectionOrder(fromId, toId){
   const items=currentItemsOwner().items;
@@ -2442,29 +2415,6 @@ function moveSubsectionBeside(fromId, toId, before){
   saveStore(); renderChecklist(); updateStats(); applyFilter();
 }
 
-// Swap a single item with its immediate neighbour (up/down). Hitting a
-// header in that direction crosses into the adjacent group instead of
-// stopping: moving up out of the top of a group lands as the last item of
-// whatever group precedes it, moving down out of the bottom lands as the
-// first item of whatever group follows — unless there's no group on that
-// side at all (the very first/last section in the list).
-function moveItem(id, dir){
-  const items=currentItemsOwner().items;
-  const idx=items.findIndex(x=>x.id===id);
-  if(idx===-1) return;
-  const targetIdx=idx+dir;
-  if(targetIdx<0 || targetIdx>=items.length) return;
-  if(items[targetIdx].type){
-    if(dir<0 && targetIdx===0) return; // nothing precedes the very first section
-    const headerIdx=targetIdx;
-    const [moved]=items.splice(idx,1);
-    items.splice(headerIdx,0,moved);
-  } else {
-    const tmp=items[idx]; items[idx]=items[targetIdx]; items[targetIdx]=tmp;
-  }
-  saveStore(); renderChecklist(); updateStats(); applyFilter();
-}
-
 // Move an item to sit directly before/after another item, wherever that
 // item lives — used by item-gripper drag-and-drop, which is how an item
 // crosses section/sub-section boundaries by dragging rather than by
@@ -2479,33 +2429,6 @@ function moveItemBeside(itemId, targetId, before){
   if(!before) insertAt+=1;
   items.splice(insertAt,0,moved);
   saveStore(); renderChecklist(); updateStats(); applyFilter();
-}
-
-// Let the user move a single item to a different section/sub-section.
-function openMoveItemModal(id){
-  const items=currentItemsOwner().items;
-  const it=items.find(x=>x.id===id);
-  if(!it) return;
-  const options=[];
-  items.forEach(d=>{
-    if(d.type==='sec') options.push(`<option value="${d.id}">${escapeHtml(SEC_ICONS[d.label]||DEFAULT_ICON)} ${escapeHtml(d.label)}</option>`);
-    else if(d.type==='sub') options.push(`<option value="${d.id}">↳ ${escapeHtml(d.label)}</option>`);
-  });
-  if(!options.length) return;
-  const overlay=openModal(`
-    <h3>Move "${escapeHtml(it.label)}"</h3>
-    <label class="field-label">Move to</label>
-    <select id="mv-target">${options.join('')}</select>
-    <div class="modal-actions">
-      <button class="modal-btn" id="mv-cancel">Cancel</button>
-      <button class="modal-btn primary" id="mv-move">Move</button>
-    </div>`);
-  overlay.querySelector('#mv-cancel').onclick=closeModal;
-  overlay.querySelector('#mv-move').onclick=()=>{
-    const targetId=overlay.querySelector('#mv-target').value;
-    closeModal();
-    moveItemToGroup(id, targetId);
-  };
 }
 
 function moveItemToGroup(itemId, headerId){
@@ -2636,13 +2559,9 @@ function buildSectionEl(blockItems){
       title.appendChild(label); title.appendChild(count);
       const dots=document.createElement('span'); dots.className='hd-stats'; dots.id='dots-'+d.id;
       const actions=document.createElement('span'); actions.className='hd-actions edit-only';
-      const subUpBtn=document.createElement('span'); subUpBtn.className='hd-btn'; subUpBtn.textContent='▲'; subUpBtn.title='Move sub-section up';
-      subUpBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,-1); };
-      const subDownBtn=document.createElement('span'); subDownBtn.className='hd-btn'; subDownBtn.textContent='▼'; subDownBtn.title='Move sub-section down';
-      subDownBtn.onclick=(e)=>{ e.stopPropagation(); moveSubsection(d.id,1); };
       const delBtn=document.createElement('span'); delBtn.className='hd-btn del'; delBtn.textContent='✕'; delBtn.title='Delete sub-section';
       delBtn.onclick=(e)=>{ e.stopPropagation(); confirmDeleteGroup(d.id,'sub'); };
-      actions.appendChild(subUpBtn); actions.appendChild(subDownBtn); actions.appendChild(delBtn);
+      actions.appendChild(delBtn);
       const sh2Top=document.createElement('div'); sh2Top.className='hd-top';
       if(editMode){
         const subGripper=document.createElement('span'); subGripper.className='hd-gripper'; subGripper.textContent='⋮⋮'; subGripper.draggable=true;
@@ -2759,15 +2678,9 @@ function buildSectionEl(blockItems){
         el.appendChild(cb); el.appendChild(labelWrap); el.appendChild(flagBtn);
       }
       const itemActions=document.createElement('span'); itemActions.className='item-actions edit-only';
-      const upBtn=document.createElement('span'); upBtn.className='item-btn'; upBtn.textContent='▲'; upBtn.title='Move up';
-      upBtn.onclick=(e)=>{ e.stopPropagation(); moveItem(d.id,-1); };
-      const downBtn=document.createElement('span'); downBtn.className='item-btn'; downBtn.textContent='▼'; downBtn.title='Move down';
-      downBtn.onclick=(e)=>{ e.stopPropagation(); moveItem(d.id,1); };
-      const moveBtn=document.createElement('span'); moveBtn.className='item-btn'; moveBtn.textContent='⇄'; moveBtn.title='Move to another section';
-      moveBtn.onclick=(e)=>{ e.stopPropagation(); openMoveItemModal(d.id); };
       const del=document.createElement('span'); del.className='item-btn del'; del.textContent='✕'; del.title='Delete item';
       del.onclick=(e)=>{ e.stopPropagation(); deleteItem(d.id); };
-      itemActions.appendChild(upBtn); itemActions.appendChild(downBtn); itemActions.appendChild(moveBtn); itemActions.appendChild(del);
+      itemActions.appendChild(del);
       el.appendChild(itemActions);
       body.appendChild(el);
     }
