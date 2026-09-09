@@ -209,8 +209,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 .sec-head{
   font-size:14px;font-weight:700;letter-spacing:.06em;color:#fff;
-  background:linear-gradient(120deg, var(--accent), var(--accent-2));padding:4px 12px;
-  display:flex;flex-direction:column;gap:2px;
+  background:linear-gradient(120deg, var(--accent), var(--accent-2));padding:4px 12px 6px;
+  display:flex;flex-direction:column;gap:0;
 }
 .hd-label{min-width:0;flex:1;overflow-wrap:anywhere}
 .sec-head .hd-label{text-transform:uppercase}
@@ -261,7 +261,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .hd-stats{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;flex-shrink:0;padding-left:28px}
 .sub-head .hd-stats{padding-left:0}
 .hd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.hd-chevron{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:23px;cursor:pointer;border-radius:6px}
+.hd-chevron{width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border-radius:6px}
 .sec-head{cursor:pointer}
 .sec-head .hd-chevron:hover,.sec-head:hover{background:linear-gradient(120deg, #145a94, var(--accent))}
 body.edit-mode .sec-head{cursor:default}
@@ -499,8 +499,8 @@ body.mode-type .type-only{display:block}
         <div class="stat-chip chip-taking" data-state="taking" onclick="toggleStateFilter('taking')" title="Click to hide/show Done items"><b id="s-taking">0</b>Done</div>
         <div class="stat-chip chip-ignore" data-state="ignore" onclick="toggleStateFilter('ignore')" title="Click to hide/show Ignoring items"><b id="s-ignore">0</b>Ignoring</div>
         <div class="stat-chip chip-left" data-state="none" onclick="toggleStateFilter('none')" title="Click to hide/show Still-to-do items"><b id="s-left">0</b>Still to do</div>
+        <div class="stat-chip chip-toggle active" data-filter="all" onclick="selectAllFilters()">All</div>
         <div class="stat-chip chip-toggle" data-filter="new" onclick="toggleNewFilter()">★ New</div>
-        <div class="stat-chip chip-toggle" data-filter="important" onclick="toggleImportantFilter()">🚩 Important</div>
       </div>
       <div class="progress-track">
         <div class="prog-taking" id="prog-taking" style="width:0%"></div>
@@ -788,7 +788,6 @@ let editingTemplateId = null;
 let editMode = false;
 let filterStates = new Set(['none','taking','ignore']); // which item states are currently shown — cumulative, not radio
 let filterNewOnly = false; // additionally restrict to isNew items
-let filterImportantOnly = false; // additionally restrict to important items
 let searchQuery = ''; // as-you-type item-label search, debounced before it affects rendering
 let searchDebounceTimer = null;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -2090,13 +2089,22 @@ function toggleImportant(id){
 function resetFilters(){
   filterStates = new Set(['none','taking','ignore']);
   filterNewOnly = false;
-  filterImportantOnly = false;
 }
 // Also clears the search box — used only where the whole owner/context is
 // changing (switch trip, enter/exit template editor, undo, restore).
 function resetFiltersAndSearch(){
   resetFilters();
   clearSearch();
+}
+function selectAllFilters(){
+  if(filterStates.size===3 && !filterNewOnly){
+    // Already fully "All" — clicking again clears the other pills instead.
+    filterStates = new Set();
+  } else {
+    resetFilters();
+  }
+  updateFilterButtons();
+  applyFilter();
 }
 function toggleStateFilter(key){
   if(filterStates.has(key)) filterStates.delete(key); else filterStates.add(key);
@@ -2108,15 +2116,10 @@ function toggleNewFilter(){
   updateFilterButtons();
   applyFilter();
 }
-function toggleImportantFilter(){
-  filterImportantOnly=!filterImportantOnly;
-  updateFilterButtons();
-  applyFilter();
-}
 function updateFilterButtons(){
   const set=(sel,on)=>{ const b=document.querySelector(sel); if(b) b.classList.toggle('active', on); };
+  set('[data-filter="all"]', filterStates.size===3 && !filterNewOnly);
   set('[data-filter="new"]', filterNewOnly);
-  set('[data-filter="important"]', filterImportantOnly);
 
   // Stat-row chips double as hide/show shortcuts for their own state: a hidden
   // state's chip dims and gets a small crossed-eye suffix instead of moving/
@@ -2149,7 +2152,6 @@ function applyFilter(){
     const stateKey = d.state===1?'taking':d.state===2?'ignore':'none';
     let show=filterStates.has(stateKey);
     if(filterNewOnly) show = show && !!d.isNew;
-    if(filterImportantOnly) show = show && !!d.important;
     if(searchQuery) show = show && matchesQuery(d);
     el.classList.toggle('filter-hide',!show);
   });
