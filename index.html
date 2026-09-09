@@ -96,6 +96,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 .hero::after{content:'';position:absolute;right:-40px;top:-60px;width:200px;height:200px;background:rgba(255,255,255,.14);border-radius:50%;pointer-events:none}
 .hero::before{content:'';position:absolute;right:60px;bottom:-70px;width:140px;height:140px;background:rgba(255,255,255,.10);border-radius:50%;pointer-events:none}
+.hero-topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;z-index:1;margin-bottom:12px}
 .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative;z-index:1;flex-wrap:wrap}
 .hero-title{font-size:22px;font-weight:800;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
 .hero-sub-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px}
@@ -159,6 +160,14 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .profile-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .profile-add-btn{width:34px;height:34px;border-radius:999px;font-size:18px;font-weight:600;line-height:1;background:var(--accent);color:#fff;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0}
 .profile-add-btn:hover{background:var(--accent-2);box-shadow:var(--shadow)}
+/* The trip bar now lives inside the blue hero card — its own accent-colored
+   "active" fills (the selected trip pill, the + button, the pencil toggle
+   while editing) would otherwise blend straight into that background, so
+   they flip to a white fill with accent text/icon here instead. */
+.hero-topbar .profile-tab.active{background:#fff;color:var(--accent);border-color:#fff}
+.hero-topbar .profile-add-btn{background:#fff;color:var(--accent)}
+.hero-topbar .profile-add-btn:hover{background:var(--accent-soft)}
+.hero-topbar .btn.active{background:#fff;color:var(--accent);border-color:#fff}
 
 .manage-types-row2{margin:2px 0 16px;display:flex;justify-content:flex-end}
 .manage-types-link{
@@ -450,13 +459,12 @@ body.mode-type .type-only{display:block}
 </div>
 <div class="page">
 
-  <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;width:100%">
-    <div class="profile-bar trip-only" id="profile-bar"></div>
-    <div style="display:flex;gap:8px">
+  <div class="hero">
+    <div class="hero-topbar">
+      <div class="profile-bar trip-only" id="profile-bar"></div>
       <button class="btn trip-only" id="edit-toggle-btn" onclick="toggleEditMode()" title="Edit items">✏️</button>
       <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺</button>
-    </div>
-    <div class="settings-dropdown trip-only" style="margin-left:auto">
+      <div class="settings-dropdown trip-only" style="margin-left:auto">
         <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="App settings">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8,10.45 L20.69,9.67 L20.69,14.33 L17.8,13.55 L17.2,15 L19.79,16.5 L16.5,19.79 L15,17.2 L13.55,17.8 L14.33,20.69 L9.67,20.69 L10.45,17.8 L9,17.2 L7.5,19.79 L4.21,16.5 L6.8,15 L6.2,13.55 L3.31,14.33 L3.31,9.67 L6.2,10.45 L6.8,9 L4.21,7.5 L7.5,4.21 L9,6.8 L10.45,6.2 L9.67,3.31 L14.33,3.31 L13.55,6.2 L15,6.8 L16.5,4.21 L19.79,7.5 L17.2,9 Z M9.5,9.5 H14.5 V14.5 H9.5 Z"/>
@@ -482,8 +490,6 @@ body.mode-type .type-only{display:block}
         </div>
       </div>
     </div>
-
-  <div class="hero">
     <div class="hero-top">
       <div>
         <div class="hero-title" id="hero-title">✈️ Packing Checklist</div>
