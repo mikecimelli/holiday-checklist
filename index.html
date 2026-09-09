@@ -774,6 +774,8 @@ const SEC_ICONS = {
   'For the Journey':'🚗',
   'Jobs Before Leaving':'🔑',
   'Miscellaneous':'🧳',
+  'Spa & Relaxation':'🧖',
+  'Gifts':'🎁',
 };
 const DEFAULT_ICON = '🗂️';
 
@@ -826,6 +828,33 @@ function cloneItems(list){ return list.map(d=> d.type ? {...d, id:uid(d.type)} :
 
 function defaultItems(){
   return RAW_DEFAULT.map(d=> d.type ? {...d, id: uid(d.type)} : {...d, id: uid('i'), state:0});
+}
+
+// Starter Trip Templates beyond "Holiday Abroad" — sections only, no items
+// yet (contents are meant to be filled in later). Section names are reused
+// from SEC_ICONS where they fit so the header icons match the rest of the
+// app; a couple of trip-specific ones (Spa & Relaxation, Gifts) are new.
+const DEFAULT_TEMPLATE_DEFS = [
+  {name:'Weekend away - Spa', sections:['Clothes','Toiletries','Spa & Relaxation','Medications','Money & Documents','For the Journey']},
+  {name:'Short Trip to see Family', sections:['Clothes','Toiletries','Medications','Gifts','Money & Documents','For the Journey','Jobs Before Leaving']},
+  {name:'Week in UK', sections:['Clothes','Toiletries','Medications','Leisure & Entertainment','Gadgets & Tech','Money & Documents','For the Journey','Jobs Before Leaving']},
+  {name:'UK City Break', sections:['Clothes','Toiletries','Medications','Money & Documents','Leisure & Entertainment','Gadgets & Tech','For the Journey']},
+  {name:'European City Break', sections:['Clothes','Toiletries','Medications','Money & Documents','Leisure & Entertainment','Gadgets & Tech','For the Journey','Jobs Before Leaving']},
+  {name:'International Holiday', sections:['Clothes','Toiletries','Medications','Food & Drink','Beach','Leisure & Entertainment','Gadgets & Tech','Money & Documents','For the Journey','Jobs Before Leaving','Miscellaneous']},
+];
+// Tops up the built-in template set with any of the above not already present
+// (matched by name) — run both on a fresh install and on every load of
+// existing data, so it reaches people who already have trips/templates
+// saved. Returns whether anything was actually added.
+function ensureDefaultTemplates(){
+  let changed=false;
+  DEFAULT_TEMPLATE_DEFS.forEach(def=>{
+    if(types.some(t=>t.name===def.name)) return;
+    const items=def.sections.map(label=>({id:uid('sec'), type:'sec', label}));
+    types.push({id:uid('type'), name:def.name, subtitle:'', items});
+    changed=true;
+  });
+  return changed;
 }
 
 // Best-effort destination -> country-flag lookup (substring match against the
@@ -1168,6 +1197,7 @@ function loadStore(){
         types=parsed.types;
         trips.forEach(t=>{ if(!Array.isArray(t.backups)) t.backups=[]; });
         activeTripId=(parsed.activeTripId && trips.find(t=>t.id===parsed.activeTripId)) ? parsed.activeTripId : trips[0].id;
+        if(ensureDefaultTemplates()) saveStore();
         return;
       }
     }
@@ -1192,6 +1222,7 @@ function loadStore(){
           if(i===activeIdx) activeTripId=trip.id;
         });
         if(!activeTripId) activeTripId=trips[0].id;
+        ensureDefaultTemplates();
         saveStore();
         return;
       }
@@ -1207,6 +1238,7 @@ function loadStore(){
   }catch(e){}
   const template={id:uid('type'), name:'Holiday Abroad', subtitle:'For 2 of us', items:cloneItems(baseItems)};
   types=[template];
+  ensureDefaultTemplates();
   const trip={id:uid('trip'), name:'My Trip', subtitle:template.subtitle, typeId:template.id, typeName:template.name, createdAt:Date.now(), items:baseItems, backups:[]};
   trips=[trip];
   activeTripId=trip.id;
