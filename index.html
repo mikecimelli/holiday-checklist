@@ -96,14 +96,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 .hero::after{content:'';position:absolute;right:-40px;top:-60px;width:200px;height:200px;background:rgba(255,255,255,.14);border-radius:50%;pointer-events:none}
 .hero::before{content:'';position:absolute;right:60px;bottom:-70px;width:140px;height:140px;background:rgba(255,255,255,.10);border-radius:50%;pointer-events:none}
-.hero-topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;z-index:1;margin-bottom:12px}
 .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative;z-index:1;flex-wrap:wrap}
 .hero-title{font-size:22px;font-weight:800;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px}
 .hero-sub-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:4px}
 .hero-sub{font-size:14px;opacity:.88;font-weight:500}
-.hero-based-on{font-size:14px;opacity:.5;font-weight:600;display:flex;align-items:center;gap:6px}
-.hero-based-on b{font-weight:800}
-.hero-based-on.missing{font-style:italic}
 .settings-dropdown{position:relative;flex-shrink:0}
 .settings-toggle{
   background:var(--card);border:1px solid var(--card-border);color:var(--text-secondary);
@@ -122,6 +118,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 .settings-icon{font-size:21px;display:flex;align-items:center;justify-content:center}
 .settings-item:hover{background:rgba(0,0,0,.04)}
+.settings-item:disabled{opacity:.4;cursor:not-allowed}
+.settings-item:disabled:hover{background:none}
 .settings-divider{height:1px;background:var(--card-border);margin:4px 0}
 .theme-toggle:hover{background:rgba(255,255,255,.28)}
 
@@ -147,27 +145,6 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .progress-track{width:100%;height:8px;background:rgba(255,255,255,.25);border-radius:999px;margin-top:14px;overflow:hidden;display:flex;position:relative;z-index:1}
 .prog-taking{height:100%;background:var(--taking);transition:width .35s ease}
 .prog-ignore{height:100%;background:var(--ignore);transition:width .35s ease}
-
-/* Trip bar (reuses the "profile-tab" pill styling) */
-.profile-bar{display:flex;gap:8px;flex-wrap:wrap}
-.profile-tab{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;color:var(--text-secondary);background:var(--card);border:1px solid var(--card-border);cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
-.profile-tab:hover{border-color:var(--accent);color:var(--accent)}
-.profile-tab.active{background:var(--accent);color:#fff;border-color:transparent}
-.profile-tab .kebab{opacity:.8;padding:0 4px;border-radius:5px;font-weight:800;line-height:1.4}
-.profile-tab.active .kebab:hover{background:rgba(255,255,255,.28)}
-.profile-tab:not(.active) .kebab:hover{background:var(--accent-soft);color:var(--accent)}
-.profile-add{border-style:dashed;color:var(--text-tertiary)}
-.profile-add:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.profile-add-btn{width:34px;height:34px;border-radius:999px;font-size:18px;font-weight:600;line-height:1;background:var(--accent);color:#fff;border:none;cursor:pointer;box-shadow:var(--shadow-sm);transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0}
-.profile-add-btn:hover{background:var(--accent-2);box-shadow:var(--shadow)}
-/* The trip bar now lives inside the blue hero card — its own accent-colored
-   "active" fills (the selected trip pill, the + button, the pencil toggle
-   while editing) would otherwise blend straight into that background, so
-   they flip to a white fill with accent text/icon here instead. */
-.hero-topbar .profile-tab.active{background:#fff;color:var(--accent);border-color:#fff}
-.hero-topbar .profile-add-btn{background:#fff;color:var(--accent)}
-.hero-topbar .profile-add-btn:hover{background:var(--accent-soft)}
-.hero-topbar .btn.active{background:#fff;color:var(--accent);border-color:#fff}
 
 .manage-types-row2{margin:2px 0 16px;display:flex;justify-content:flex-end}
 .manage-types-link{
@@ -460,19 +437,33 @@ body.mode-type .type-only{display:block}
 <div class="page">
 
   <div class="hero">
-    <div class="hero-topbar">
-      <div class="profile-bar trip-only" id="profile-bar"></div>
-      <button class="btn trip-only" id="edit-toggle-btn" onclick="toggleEditMode()" title="Edit items">✏️</button>
-      <button class="btn" id="undo-btn" onclick="undo()" disabled title="Undo the last delete/reset">↺</button>
-      <div class="settings-dropdown trip-only" style="margin-left:auto">
-        <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="App settings">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M17.8,10.45 L20.69,9.67 L20.69,14.33 L17.8,13.55 L17.2,15 L19.79,16.5 L16.5,19.79 L15,17.2 L13.55,17.8 L14.33,20.69 L9.67,20.69 L10.45,17.8 L9,17.2 L7.5,19.79 L4.21,16.5 L6.8,15 L6.2,13.55 L3.31,14.33 L3.31,9.67 L6.2,10.45 L6.8,9 L4.21,7.5 L7.5,4.21 L9,6.8 L10.45,6.2 L9.67,3.31 L14.33,3.31 L13.55,6.2 L15,6.8 L16.5,4.21 L19.79,7.5 L17.2,9 Z M9.5,9.5 H14.5 V14.5 H9.5 Z"/>
-          </svg>
-        </button>
+    <div class="hero-top">
+      <div style="flex:1;min-width:0">
+        <div class="hero-title" id="hero-title">✈️ Packing Checklist</div>
+        <div class="hero-sub-row">
+          <span class="hero-sub" id="hero-subtitle"></span>
+        </div>
+      </div>
+      <div class="settings-dropdown">
+        <button class="settings-toggle" onclick="toggleSettingsDropdown()" title="Menu">☰</button>
         <div class="settings-menu" id="settings-menu">
+          <div id="trip-switch-section" class="trip-only"></div>
+          <button class="settings-item trip-only" onclick="openNewTripModal(); toggleSettingsDropdown()">
+            <span class="settings-icon">➕</span><span>New Trip</span>
+          </button>
+          <button class="settings-item trip-only" onclick="openTripSettingsModal(activeTripId); toggleSettingsDropdown()">
+            <span class="settings-icon">⚙️</span><span>This Trip's Settings</span>
+          </button>
+          <div class="settings-divider"></div>
+          <button class="settings-item trip-only" id="edit-toggle-btn" onclick="toggleEditMode(); toggleSettingsDropdown()">
+            <span class="settings-icon" id="edit-toggle-icon">✏️</span><span id="edit-toggle-label">Edit items</span>
+          </button>
+          <button class="settings-item" id="undo-btn" onclick="undo(); toggleSettingsDropdown()" disabled>
+            <span class="settings-icon">↺</span><span>Undo</span>
+          </button>
+          <div class="settings-divider"></div>
           <button class="settings-item" onclick="toggleTheme(); toggleSettingsDropdown()">
-            <span class="settings-icon">🌙</span><span id="theme-label">Dark mode</span>
+            <span class="settings-icon" id="theme-icon">🌙</span><span id="theme-label">Dark mode</span>
           </button>
           <button class="settings-item" onclick="exportBackup(); toggleSettingsDropdown()">
             <span class="settings-icon">⬇️</span><span>Backup</span>
@@ -487,15 +478,6 @@ body.mode-type .type-only{display:block}
           <button class="settings-item" onclick="openManageTemplatesModal(); toggleSettingsDropdown()">
             <span class="settings-icon">📋</span><span>Manage Trip Templates</span>
           </button>
-        </div>
-      </div>
-    </div>
-    <div class="hero-top">
-      <div>
-        <div class="hero-title" id="hero-title">✈️ Packing Checklist</div>
-        <div class="hero-sub-row">
-          <span class="hero-sub" id="hero-subtitle"></span>
-          <span class="hero-based-on" id="hero-based-on"></span>
         </div>
       </div>
     </div>
@@ -1227,7 +1209,7 @@ function setTheme(t){
   try{localStorage.setItem('hol2-theme',t);}catch(e){}
   const themeLabel=document.getElementById('theme-label');
   if(themeLabel) themeLabel.textContent = t==='dark' ? 'Light mode' : 'Dark mode';
-  const themeIcon=document.querySelector('.settings-item .settings-icon');
+  const themeIcon=document.getElementById('theme-icon');
   if(themeIcon) themeIcon.textContent = t==='dark' ? '☀️' : '🌙';
 }
 /* ---------- Legend visibility ---------- */
@@ -1368,53 +1350,26 @@ function groupIntoBlocks(list){
 }
 
 /* ---------- Trips ---------- */
+// Trip switching lives inside the hamburger menu now (see #trip-switch-section)
+// rather than a row of pills — only the trips *other* than the active one are
+// listed, since switching to the one you're already on would be a no-op.
 function renderTripBar(){
-  const bar=document.getElementById('profile-bar');
-  bar.innerHTML='';
-  const addBtn=document.createElement('button');
-  addBtn.className='profile-add-btn';
-  addBtn.textContent='+';
-  addBtn.onclick=()=>openNewTripModal();
-  addBtn.title='Create a new trip';
-  bar.appendChild(addBtn);
-  trips.forEach(t=>{
-    const tab=document.createElement('div');
-    tab.className='profile-tab'+(t.id===activeTripId?' active':'');
-    const iconSpan=document.createElement('span');
-    iconSpan.className='trip-icon';
-    iconSpan.textContent=tripIcons(t);
-    const typeGuess=tripTypeIcon(t.subtitle);
-    iconSpan.title = typeGuess ? `Destination: ${t.name} · ${t.subtitle}` : `Destination: ${t.name}`;
-    tab.appendChild(iconSpan);
-    const nameSpan=document.createElement('span');
-    nameSpan.textContent=t.name;
-    tab.appendChild(nameSpan);
-    if(t.id===activeTripId){
-      const kebab=document.createElement('span');
-      kebab.className='kebab';
-      kebab.textContent='⋯';
-      kebab.title='Trip options';
-      kebab.onclick=(e)=>{ e.stopPropagation(); openTripSettingsModal(t.id); };
-      tab.appendChild(kebab);
-    }
-    tab.addEventListener('click',()=>switchTrip(t.id));
-    bar.appendChild(tab);
+  const section=document.getElementById('trip-switch-section');
+  if(!section) return;
+  section.innerHTML='';
+  const others=trips.filter(t=>t.id!==activeTripId);
+  if(!others.length) return;
+  others.forEach(t=>{
+    const btn=document.createElement('button');
+    btn.className='settings-item';
+    const icon=document.createElement('span'); icon.className='settings-icon'; icon.textContent=tripIcons(t);
+    const label=document.createElement('span'); label.textContent=`Switch to: ${t.name}`;
+    btn.appendChild(icon); btn.appendChild(label);
+    btn.onclick=()=>{ switchTrip(t.id); toggleSettingsDropdown(); };
+    section.appendChild(btn);
   });
-}
-
-// Which Trip Template the active trip was created from — shown in the hero,
-// right alongside the subtitle, so it's clear at a glance without opening
-// Trip settings.
-function renderBasedOnRow(trip){
-  const row=document.getElementById('hero-based-on');
-  if(!trip){ row.innerHTML=''; return; }
-  if(trip.typeName){
-    row.classList.remove('missing');
-    row.innerHTML = `📋 Based on: <b>${escapeHtml(trip.typeName)}</b>`;
-  } else {
-    row.classList.add('missing');
-    row.textContent = 'Its original Trip Template no longer exists.';
-  }
+  const divider=document.createElement('div'); divider.className='settings-divider';
+  section.appendChild(divider);
 }
 
 function switchTrip(id){
@@ -1943,7 +1898,6 @@ function updateHero(){
     document.getElementById('hero-title').textContent = `📋 Editing Trip Template: ${name}`;
     document.title = `Editing ${name} — Trip Template`;
     document.getElementById('hero-subtitle').textContent = 'This is a template — changes only affect trips created from it in future.';
-    renderBasedOnRow(null);
     return;
   }
   const p=activeTrip();
@@ -1953,7 +1907,6 @@ function updateHero(){
   const subtitleText=[p.subtitle, dateLabel].filter(Boolean).join(' · ');
   const typeIcon=tripTypeIcon(p.subtitle);
   document.getElementById('hero-subtitle').textContent = typeIcon ? `${typeIcon} ${subtitleText}` : subtitleText;
-  renderBasedOnRow(p);
 }
 
 // Shared Done/Ignoring/Still-to-do tally, used for both the page-level hero
@@ -2204,10 +2157,8 @@ function resetAll(){
 function toggleEditMode(){
   if(viewMode==='template') return; // Trip Templates are always in the structural editor
   editMode=!editMode;
-  const btn=document.getElementById('edit-toggle-btn');
-  btn.classList.toggle('active', editMode);
-  btn.textContent = editMode ? '✅' : '✏️';
-  btn.title = editMode ? 'Done editing' : 'Edit items';
+  document.getElementById('edit-toggle-icon').textContent = editMode ? '✅' : '✏️';
+  document.getElementById('edit-toggle-label').textContent = editMode ? 'Done editing' : 'Edit items';
   renderChecklist();
 }
 
