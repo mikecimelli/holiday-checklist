@@ -136,8 +136,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .stat-chip.chip-ignore b{color:var(--ignore)}
 .stat-chip{cursor:pointer;transition:opacity .15s;border:1px solid transparent}
 .stat-chip.hidden-state{opacity:.5}
-.stat-chip .hidden-suffix{font-weight:600;opacity:.85}
-/* The All/New/Important chips are plain toggles rather than counts — muted
+/* The All/New chips are plain toggles rather than counts — muted
    until active, then flipped to a solid white pill so it's obvious which
    extra filters are currently narrowing the list. */
 .stat-chip.chip-toggle{opacity:.75}
@@ -2122,23 +2121,13 @@ function updateFilterButtons(){
   set('[data-filter="new"]', filterNewOnly);
 
   // Stat-row chips double as hide/show shortcuts for their own state: a hidden
-  // state's chip dims and gets a small crossed-eye suffix instead of moving/
-  // resizing anything, so the row doesn't jank as chips are toggled.
+  // state's chip just dims, instead of moving/resizing anything, so the row
+  // doesn't jank as chips are toggled.
   const chipStates=[['taking','s-taking'],['ignore','s-ignore'],['none','s-left']];
   chipStates.forEach(([key])=>{
     const chip=document.querySelector(`.stat-chip[data-state="${key}"]`);
     if(!chip) return;
-    const hidden=!filterStates.has(key);
-    chip.classList.toggle('hidden-state', hidden);
-    let suffix=chip.querySelector('.hidden-suffix');
-    if(hidden && !suffix){
-      suffix=document.createElement('span');
-      suffix.className='hidden-suffix';
-      suffix.textContent=' 🚫';
-      chip.appendChild(suffix);
-    } else if(!hidden && suffix){
-      suffix.remove();
-    }
+    chip.classList.toggle('hidden-state', !filterStates.has(key));
   });
 }
 
