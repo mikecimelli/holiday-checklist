@@ -2580,10 +2580,8 @@ function buildSectionEl(blockItems){
         subGripper.addEventListener('dragend',()=>{ draggedSubsectionId=null; sh2.classList.remove('drag-over-top','drag-over-bottom'); });
         sh2Top.appendChild(subGripper);
       }
-      sh2Top.appendChild(title); sh2Top.appendChild(dots);
-      const sh2Bottom=document.createElement('div'); sh2Bottom.className='hd-bottom';
-      sh2Bottom.appendChild(actions);
-      sh2.appendChild(sh2Top); sh2.appendChild(sh2Bottom);
+      sh2Top.appendChild(title); sh2Top.appendChild(dots); sh2Top.appendChild(actions);
+      sh2.appendChild(sh2Top);
       sh2.addEventListener('dragover',e=>{
         if(draggedItemId){
           e.preventDefault(); e.dataTransfer.dropEffect='move'; sh2.classList.add('drag-over');
